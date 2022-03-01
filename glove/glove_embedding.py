@@ -27,6 +27,10 @@ def add_oov_words(df, embedding_model):
 
     random_vectors = np.random.uniform(low=-4.0, high=4.0, size=(len(oov_words), EMBEDDING_DIMENSION))
     embedding_model.add(oov_words, random_vectors)
+
+    embedding_model['<PAD>'] = np.zeros(shape=(1, EMBEDDING_DIMENSION))
+    embedding_model['<UNK>'] = np.random.uniform(low=-4.0, high=4.0, size=(1, EMBEDDING_DIMENSION))
+
     return embedding_model
 
 def get_oov_words_list(df, embedding_model):
