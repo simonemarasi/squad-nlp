@@ -19,19 +19,24 @@ def load_embedding_model():
     emb_model = gloader.load(download_path)
     return emb_model
 
-def handle_oov_words(embedding_model, oov_words):
+def add_oov_words(df, embedding_model):
     """
     Adds out-of-vocabulary words to embedding model
     """
+    oov_words = get_oov_words_list(df, embedding_model)
+
     random_vectors = np.random.uniform(low=-4.0, high=4.0, size=(len(oov_words), EMBEDDING_DIMENSION))
     embedding_model.add(oov_words, random_vectors)
     return embedding_model
 
-def get_oov_words_list(tokens, embedding_model):
+def get_oov_words_list(df, embedding_model):
     """
     Finds out-of-vocabulary words of the embedding model and returns a unique list of them
     """
-    oov_words = [word for sentence in tokens for word in sentence if word not in embedding_model.vocab]
+    oov_words_doc = [word for sentence in df.proc_doc_tokens for word in sentence if word not in embedding_model.vocab]
+    oov_words_quest = [word for sentence in df.proc_quest_tokens for word in sentence if word not in embedding_model.vocab]
+    oov_words = [oov_words_quest, oov_words_doc]
+
     return list(set(oov_words))
 
 def build_embedding_indices(embedding_model):
