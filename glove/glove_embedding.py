@@ -39,7 +39,7 @@ def get_oov_words_list(df, embedding_model):
     """
     oov_words_doc = [word for sentence in df.proc_doc_tokens for word in sentence if word not in embedding_model.vocab]
     oov_words_quest = [word for sentence in df.proc_quest_tokens for word in sentence if word not in embedding_model.vocab]
-    oov_words = [oov_words_quest, oov_words_doc]
+    oov_words = oov_words_quest + oov_words_doc
 
     return list(set(oov_words))
 
