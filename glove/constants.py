@@ -1,0 +1,10 @@
+PUNCTUATION = '!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~–—'
+EMPTY_TOKEN = '<EMPTY>'
+PAD_TOKEN = '<PAD>'
+PAD_POS = 'PAD'
+
+MAX_CONTEXT_LEN = 400
+MAX_QUEST_LEN = 40
+
+EMBEDDING_MODEL_TYPE = 'glove'
+EMBEDDING_DIMENSION = 300
