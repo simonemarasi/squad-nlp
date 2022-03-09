@@ -36,7 +36,7 @@ def baseline_model(embedding_model):
                   outputs=[start_probs, end_probs])
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=5e-5)
+    optimizer = Adam(learning_rate=5e-5)
     model.compile(optimizer=optimizer, loss=[loss, loss])
 
     return model
@@ -74,7 +74,7 @@ def baseline_with_features(embedding_model, idx_to_pos):
             outputs=[start_probs, end_probs])
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=5e-5)
+    optimizer = Adam(learning_rate=5e-5)
     model.compile(optimizer=optimizer, loss=[loss, loss])
     return model
 
@@ -106,6 +106,6 @@ def attention_with_features(embedding_model, idx_to_pos):
         )
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=5e-5)
+    optimizer = Adam(learning_rate=5e-5)
     model.compile(optimizer=optimizer, loss=[loss, loss])
     return model

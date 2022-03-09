@@ -15,16 +15,18 @@ def build_pos_indices():
     all_pos = [PAD_POS] + list(load("help/tagsets/upenn_tagset.pickle").keys())
     pos_to_idx = {pos: i for (i, pos) in enumerate(all_pos)}
     idx_to_pos = {i: pos for (i, pos) in enumerate(all_pos)}
-    return idx_to_pos, pos_to_idx
+    return pos_to_idx, idx_to_pos
 
-def build_pos_features(df, pos_to_idx, idx_to_pos):
+def build_pos_features(df):
     """
     Return the list of the categorical representation of token POS tags padded
     """
+    pos_to_idx, idx_to_pos = build_pos_indices()
     X_doc_tags = [nltk.pos_tag(s) for s in df.proc_doc_tokens]
     X_doc_tags = [[pos_to_idx[el[1]] for el in sequence] for sequence in X_doc_tags]
     X_doc_tags = pad_sequences(maxlen=MAX_CONTEXT_LEN, sequences=X_doc_tags, padding="post", truncating="post", value=0)
     X_doc_tags = to_categorical(X_doc_tags, num_classes=len(idx_to_pos.keys()))
+    return X_doc_tags
 
 def exact_lemma(quest_tokens, doc_tokens):
     """
@@ -46,7 +48,7 @@ def term_frequency(tokens):
     return np.reshape(tf, (l,-1))
 
 def build_exact_lemma_features(df):
-    X_train_exact_lemma = [exact_lemma(ques_tokens, con_tokens) for (ques_tokens, con_tokens) in zip(df.proc_quest_tokens, df.proc_doc_tokens)]
+    X_train_exact_lemma = [exact_lemma(quest_tokens, doc_tokens) for (quest_tokens, doc_tokens) in zip(df.proc_quest_tokens, df.proc_doc_tokens)]
     return pad_sequences(X_train_exact_lemma, maxlen = MAX_CONTEXT_LEN, padding='post', truncating='post', value=np.array([0, 0]))
 
 def build_term_frequency_features(df):
