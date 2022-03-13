@@ -1,7 +1,10 @@
-from utils import is_whitespace, whitespace_tokenize
+from glove.utils import is_whitespace, whitespace_tokenize
 import pandas as pd
-from constants import PUNCTUATION, EMPTY_TOKEN, MAX_CONTEXT_LEN, MAX_QUEST_LEN, PAD_TOKEN
+from glove.constants import PUNCTUATION, EMPTY_TOKEN, MAX_CONTEXT_LEN, MAX_QUEST_LEN, PAD_TOKEN
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import tensorflow as tf
+from tqdm import tqdm
+import numpy as np
 
 def read_examples(data, is_training = True):
   """
@@ -95,12 +98,23 @@ def preprocess_tokens(token_list):
     items.append(item)
   return items    
 
+def remove_not_valid_answer(df):
+    """
+    Removes samples from the dataframe that became invalid after removing the samples that were too long
+    """
+    df = df[df['start_position'] >= 0]
+    df = df[df['start_position'] <= MAX_CONTEXT_LEN]
+
+    df = df[df['end_position'] >= 0]
+    df = df[df['end_position'] <= MAX_CONTEXT_LEN]
+    return df
+
 def remove_too_long_samples(df):
     """
     Removes samples from the dataframe where number of tokens of either context or question is greater than thresholds
     """
-    df[df['proc_doc_tokens'].map(len) <= MAX_CONTEXT_LEN]
-    df[df['proc_quest_tokens'].map(len) <= MAX_QUEST_LEN]
+    df = df[df['proc_doc_tokens'].map(len) <= MAX_CONTEXT_LEN]
+    df = df[df['proc_quest_tokens'].map(len) <= MAX_QUEST_LEN]
     return df
 
 def embed_and_pad_sequences(df, word2index, embedding_model):
@@ -114,3 +128,9 @@ def embed_and_pad_sequences(df, word2index, embedding_model):
     X_doc = pad_sequences(maxlen=MAX_CONTEXT_LEN, sequences=X_doc, padding="post", truncating="post", value=word2index[PAD_TOKEN])
 
     return X_quest, X_doc
+
+def check_for_nan(arraylist):
+  for array in arraylist:
+    if np.isnan(np.sum(array)):
+      return True
+  return False

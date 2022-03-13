@@ -1,4 +1,4 @@
-from constants import MAX_CONTEXT_LEN, MAX_QUEST_LEN
+from glove.constants import MAX_CONTEXT_LEN, MAX_QUEST_LEN
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Bidirectional, LSTM, Embedding, Input, Concatenate, Average, Flatten, Add, Activation
 from tensorflow.keras.callbacks import EarlyStopping
@@ -7,7 +7,7 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.backend import mean
 from tensorflow.keras.activations import softmax
 import tensorflow as tf
-from layers import *
+from glove.layers import *
 
 def baseline_model(embedding_model):
 
@@ -36,12 +36,12 @@ def baseline_model(embedding_model):
                   outputs=[start_probs, end_probs])
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(learning_rate=5e-5)
+    optimizer = Adam(learning_rate=5e-5, clipnorm=1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
 
     return model
 
-def baseline_with_features(embedding_model, idx_to_pos):
+def baseline_with_features(embedding_model, pos_number):
 
     embedding = embedding_model.get_keras_embedding(train_embeddings=False)
 
@@ -50,7 +50,7 @@ def baseline_with_features(embedding_model, idx_to_pos):
     quest_model = Bidirectional(LSTM(units=250, return_sequences=True))(quest_model)
 
     input_context = Input(shape=(MAX_CONTEXT_LEN,))
-    input_pos = Input(shape=(MAX_CONTEXT_LEN, len(idx_to_pos.keys()),))
+    input_pos = Input(shape=(MAX_CONTEXT_LEN, pos_number,))
     input_exact_lemma = Input(shape=(MAX_CONTEXT_LEN, 2, ))
     input_tf = Input(shape=(MAX_CONTEXT_LEN, 1, ))
 
@@ -78,7 +78,7 @@ def baseline_with_features(embedding_model, idx_to_pos):
     model.compile(optimizer=optimizer, loss=[loss, loss])
     return model
 
-def attention_with_features(embedding_model, idx_to_pos):
+def attention_with_features(embedding_model, pos_number):
     embedding = embedding_model.get_keras_embedding(train_embeddings=False)
 
     input_quest = Input(shape=(MAX_QUEST_LEN,))
@@ -88,7 +88,7 @@ def attention_with_features(embedding_model, idx_to_pos):
     quest_model, _ = Attention()(quest_model)
 
     input_context = Input(shape=(MAX_CONTEXT_LEN,))
-    input_pos = Input(shape=(MAX_CONTEXT_LEN, len(idx_to_pos.keys()),))
+    input_pos = Input(shape=(MAX_CONTEXT_LEN, pos_number,))
     input_exact_lemma = Input(shape=(MAX_CONTEXT_LEN, 2, ))
     input_tf = Input(shape=(MAX_CONTEXT_LEN, 1, ))
 

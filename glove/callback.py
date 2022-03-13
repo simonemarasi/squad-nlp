@@ -47,7 +47,7 @@ class ExactMatch(Callback):
         self.doc_tokens_eval = doc_tokens_eval
         self.y_text = y_text
 
-    def on_epoch_end(self, epoch):
+    def on_epoch_end(self, epoch, logs):
         pred_start, pred_end = self.model.predict(self.x_eval)
         count = 0
         f1_scores = []
@@ -65,5 +65,5 @@ class ExactMatch(Callback):
         acc = 100 * (count / len(self.y_eval[0]))
         print(f"\nEpoch={epoch+1}, Exact Match score={acc:.2f}%")   
         f1 = 100.0 * sum(f1_scores) / len(self.y_eval[0])
-        print(f"F1-score={f1:.2f}%")
+        print(f"F1-score={f1:.2f}%\n")
         gc.collect()

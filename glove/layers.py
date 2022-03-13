@@ -1,5 +1,5 @@
 import tensorflow as tf
-from constants import MAX_CONTEXT_LEN
+from glove.constants import MAX_CONTEXT_LEN
 
 class Attention(tf.keras.Model):
     """

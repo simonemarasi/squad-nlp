@@ -1,8 +1,8 @@
 import gensim
 import gensim.downloader as gloader
 import numpy as np
-from constants import EMBEDDING_DIMENSION
-from utils import list_to_dict
+from glove.constants import EMBEDDING_DIMENSION
+from glove.utils import list_to_dict
 
 def load_embedding_model():
     """
@@ -26,6 +26,8 @@ def add_oov_words(df, embedding_model):
     oov_words = get_oov_words_list(df, embedding_model)
 
     random_vectors = np.random.uniform(low=-4.0, high=4.0, size=(len(oov_words), EMBEDDING_DIMENSION))
+
+    #for word, vector in zip(oov_words, random_vectors):
     embedding_model.add(oov_words, random_vectors)
 
     embedding_model['<PAD>'] = np.zeros(shape=(1, EMBEDDING_DIMENSION))
