@@ -2,7 +2,7 @@ import nltk
 from nltk.data import load
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from glove.constants import PAD_POS, MAX_CONTEXT_LEN
+from common.constants import PAD_POS, MAX_CONTEXT_LEN
 import numpy as np
 
 nltk.download('tagsets')
@@ -19,14 +19,14 @@ def build_pos_indices():
     idx_to_pos = {i: pos for (i, pos) in enumerate(all_pos)}
     return pos_to_idx, idx_to_pos
 
-def build_pos_features(df):
+def build_pos_features(df, maxlen):
     """
     Return the list of the categorical representation of token POS tags padded
     """
     pos_to_idx, idx_to_pos = build_pos_indices()
     doc_tags = [nltk.pos_tag(s) for s in df.proc_doc_tokens]
     doc_tags = [[pos_to_idx[el[1]] for el in sequence] for sequence in doc_tags]
-    doc_tags = pad_sequences(maxlen=MAX_CONTEXT_LEN, sequences=doc_tags, padding="post", truncating="post", value=0)
+    doc_tags = pad_sequences(maxlen = maxlen, sequences = doc_tags, padding = "post", truncating = "post", value=0)
     doc_tags = to_categorical(doc_tags, num_classes=len(idx_to_pos.keys()))
     return doc_tags, len(idx_to_pos.keys())
 
@@ -49,10 +49,10 @@ def term_frequency(tokens):
     tf = np.array([tokens.count(ew)/l for ew in tokens])
     return np.reshape(tf, (l,-1))
 
-def build_exact_lemma_features(df):
+def build_exact_lemma_features(df, maxlen):
     lemma_array = [exact_lemma(quest_tokens, doc_tokens) for (quest_tokens, doc_tokens) in zip(df.proc_quest_tokens, df.proc_doc_tokens)]  
-    return pad_sequences(lemma_array, maxlen = MAX_CONTEXT_LEN, padding='post', truncating='post', value=np.array([0, 0]))
+    return pad_sequences(lemma_array, maxlen = maxlen, padding='post', truncating='post', value=np.array([0, 0]))
 
-def build_term_frequency_features(df):
+def build_term_frequency_features(df, maxlen):
     tf = [term_frequency(tokens) for tokens in df.proc_doc_tokens]
-    return pad_sequences(tf, maxlen = MAX_CONTEXT_LEN, padding='post', dtype='float64', truncating='post', value=0.0)
+    return pad_sequences(tf, maxlen = maxlen, padding='post', dtype='float64', truncating='post', value=0.0)

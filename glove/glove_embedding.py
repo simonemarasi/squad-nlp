@@ -1,8 +1,9 @@
-import gensim
 import gensim.downloader as gloader
 import numpy as np
-from glove.constants import EMBEDDING_DIMENSION
-from glove.utils import list_to_dict
+from common.constants import EMBEDDING_DIMENSION, URL_EMBEDDING_MODEL
+from common.utils import list_to_dict
+import requests
+import pickle
 
 def load_embedding_model():
     """
@@ -14,7 +15,6 @@ def load_embedding_model():
     :return
         - pre-trained word embedding model (gensim KeyedVectors object)
     """
-    download_path = ""
     download_path = "glove-wiki-gigaword-{}".format(EMBEDDING_DIMENSION)
     emb_model = gloader.load(download_path)
     return emb_model
@@ -24,10 +24,7 @@ def add_oov_words(df, embedding_model):
     Adds out-of-vocabulary words to embedding model
     """
     oov_words = get_oov_words_list(df, embedding_model)
-
     random_vectors = np.random.uniform(low=-4.0, high=4.0, size=(len(oov_words), EMBEDDING_DIMENSION))
-
-    #for word, vector in zip(oov_words, random_vectors):
     embedding_model.add(oov_words, random_vectors)
 
     embedding_model['<PAD>'] = np.zeros(shape=(1, EMBEDDING_DIMENSION))
@@ -45,6 +42,14 @@ def get_oov_words_list(df, embedding_model):
 
     return list(set(oov_words))
 
+def load_embedding_pretrained():
+    """
+    Download pretrained embedding model
+    """
+    r = requests.get(URL_EMBEDDING_MODEL, allow_redirects=True)
+    with open(r.content, 'rb') as f:
+        return pickle.load(f)
+
 def build_embedding_indices(embedding_model):
     """
     Build word2index and index2word dictionaries of the embedding model
@@ -53,4 +58,3 @@ def build_embedding_indices(embedding_model):
     index2word  = list_to_dict(index2word_list)
     word2index = {value: key for (key, value) in index2word.items()}
     return word2index, index2word
-

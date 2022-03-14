@@ -1,12 +1,13 @@
-from glove.utils import *
+from common.utils import *
+from common.functions import *
 from glove.data_preparation import *
-from glove.additional_features_preparation import *
-from glove.constants import *
+from common.additional_features_preparation import *
+from common.constants import *
 from glove.callback import *
 from glove.glove_embedding import *
 from glove.models import *
 from glove.layers import *
-from glove.generators import *
+from common.generators import *
 
 FILEPATH = "SQUAD/training_set.json"
 
@@ -51,21 +52,21 @@ y_val_end = eval.end_position.to_numpy()
 val_doc_tokens = eval.doc_tokens.to_numpy()
 val_answer_text = eval.orig_answer_text.to_numpy()
 
-print("Building additional features")
-X_train_doc_tags, pos_number = build_pos_features(train)
-X_train_exact_lemma = build_exact_lemma_features(train)
-X_train_tf = build_term_frequency_features(train)
+print("Building additional features (it may take a while...)")
+X_train_doc_tags, pos_number = build_pos_features(train, MAX_CONTEXT_LEN)
+X_train_exact_lemma = build_exact_lemma_features(train, MAX_CONTEXT_LEN)
+X_train_tf = build_term_frequency_features(train, MAX_CONTEXT_LEN)
 
-X_eval_doc_tags, pos_number = build_pos_features(eval)
-X_eval_exact_lemma = build_exact_lemma_features(eval)
-X_eval_tf = build_term_frequency_features(eval)
+X_eval_doc_tags, pos_number = build_pos_features(eval, MAX_CONTEXT_LEN)
+X_eval_exact_lemma = build_exact_lemma_features(eval, MAX_CONTEXT_LEN)
+X_eval_tf = build_term_frequency_features(eval, MAX_CONTEXT_LEN)
 
 X_train = [X_train_quest, X_train_doc, X_train_doc_tags, X_train_exact_lemma, X_train_tf]
 y_train = [y_train_start, y_train_end]
 X_val = [X_val_quest, X_val_doc, X_eval_doc_tags, X_eval_exact_lemma, X_eval_tf]
 y_val = [y_val_start, y_val_end]
 
-print("Freeing up memory, cleaning unuesd variables")
+print("Freeing up memory, cleaning unused variables")
 del train
 del eval
 gc.collect()
@@ -73,7 +74,6 @@ gc.collect()
 print("Fitting data to generators")
 TRAIN_LEN = X_train[0].shape[0]
 VAL_LEN = X_val[0].shape[0]
-BS = 32
 
 train_generator = features_data_generator(X_train, y_train, 32)
 val_generator = features_data_generator(X_val, y_val, 32)
@@ -89,8 +89,8 @@ print("\nTrain start:\n\n")
 history = model.fit(
     train_generator,
     validation_data = val_generator,
-    steps_per_epoch = TRAIN_LEN/BS,
-    validation_steps = VAL_LEN/BS,
+    steps_per_epoch = TRAIN_LEN / GENERATOR_BS,
+    validation_steps = VAL_LEN / GENERATOR_BS,
     epochs=20,
     verbose=1,
     callbacks=[exact_match_callback, es],
