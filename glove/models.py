@@ -6,7 +6,7 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.activations import softmax
 from glove.layers import *
 
-def baseline_model(embedding_model):
+def baseline_model(learning_rate, embedding_model):
 
     embedding = embedding_model.get_keras_embedding(train_embeddings=False)
 
@@ -33,12 +33,12 @@ def baseline_model(embedding_model):
                   outputs=[start_probs, end_probs])
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(learning_rate=LR, clipnorm=1)
+    optimizer = Adam(learning_rate=learning_rate, clipnorm=1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
 
     return model
 
-def attention_model(embedding_model):
+def attention_model(learning_rate, embedding_model):
     embedding = embedding_model.get_keras_embedding(train_embeddings=False)
 
     input_quest = Input(shape=(MAX_QUEST_LEN,))
@@ -61,12 +61,12 @@ def attention_model(embedding_model):
         )
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=LR)
+    optimizer = Adam(learning_rate=learning_rate, clipnorm=1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
   
     return model
 
-def baseline_with_features(embedding_model, pos_number):
+def baseline_with_features(learning_rate, embedding_model, pos_number):
 
     embedding = embedding_model.get_keras_embedding(train_embeddings=False)
 
@@ -99,11 +99,11 @@ def baseline_with_features(embedding_model, pos_number):
             outputs=[start_probs, end_probs])
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(learning_rate=LR)
+    optimizer = Adam(learning_rate=learning_rate, clipnorm=1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
     return model
 
-def attention_with_features(embedding_model, pos_number):
+def attention_with_features(learning_rate, embedding_model, pos_number):
     embedding = embedding_model.get_keras_embedding(train_embeddings=False)
 
     input_quest = Input(shape=(MAX_QUEST_LEN,))
@@ -131,6 +131,6 @@ def attention_with_features(embedding_model, pos_number):
         )
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(learning_rate=LR)
+    optimizer = Adam(learning_rate=learning_rate, clipnorm=1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
     return model
