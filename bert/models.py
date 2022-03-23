@@ -5,7 +5,7 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.activations import softmax
 import tensorflow as tf
 from transformers import TFBertModel
-from common.constants import BERT_MAX_LEN, BERT_MODEL, LR, LSTM_UNITS
+from common.constants import BERT_MAX_LEN, BERT_MODEL, LSTM_UNITS
 
 def baseline_model(lr):
     ## BERT encoder

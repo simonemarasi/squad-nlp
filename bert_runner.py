@@ -6,7 +6,7 @@ from common.additional_features_preparation import *
 from common.constants import *
 from bert.callback import *
 from bert.models import *
-from common.generators import *
+from bert.generators import *
 import os
 from argparse import ArgumentParser
 from datetime import datetime
