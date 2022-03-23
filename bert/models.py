@@ -7,7 +7,7 @@ import tensorflow as tf
 from transformers import TFBertModel
 from common.constants import BERT_MAX_LEN, BERT_MODEL, LR, LSTM_UNITS
 
-def baseline_model():
+def baseline_model(lr):
     ## BERT encoder
     encoder = TFBertModel.from_pretrained(BERT_MODEL)
 
@@ -33,11 +33,11 @@ def baseline_model():
         outputs=[start_probs, end_probs],
     )
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=LR)
+    optimizer = Adam(lr=lr)
     model.compile(optimizer=optimizer, loss=[loss, loss])
     return model
 
-def baseline_with_rnn():
+def baseline_with_rnn(lr):
     ## BERT encoder
     encoder = TFBertModel.from_pretrained(BERT_MODEL)
 
@@ -66,12 +66,12 @@ def baseline_with_rnn():
         outputs=[start_probs, end_probs],
     )
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=5e-6, clipnorm = 1)
+    optimizer = Adam(lr=lr, clipnorm = 1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
     
     return model
 
-def features_with_rnn():
+def features_with_rnn(lr):
     ## BERT encoder
     encoder = TFBertModel.from_pretrained(BERT_MODEL)
 
@@ -106,7 +106,7 @@ def features_with_rnn():
         outputs=[start_probs, end_probs],
     )
     loss = SparseCategoricalCrossentropy(from_logits=False)
-    optimizer = Adam(lr=5e-6, clipnorm=1)
+    optimizer = Adam(lr=lr, clipnorm=1)
     model.compile(optimizer=optimizer, loss=[loss, loss])
 
     return model

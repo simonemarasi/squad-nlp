@@ -19,7 +19,7 @@ def save_bert_tokenizer():
 def load_bert_tokenizer():
     return BertWordPieceTokenizer(osp.join(BERT_SAVE_DIR, "vocab.txt"), lowercase=True)
 
-def bert_tokenization(tokenizer, token_list):
+def bert_tokenization(token_list, tokenizer):
     return [tokenizer.encode(token_list[i], add_special_tokens=False) for i in range(len(token_list))]
 
 def unpack_dataframe(df, with_features=True):
@@ -151,3 +151,18 @@ def padding_sequences(input_ids, token_type_ids, train_attention_mask, pos_tags,
     term_frequency = pad_sequences(term_frequency, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0.0)
 
     return input_ids, token_type_ids, train_attention_mask, pos_tags, exact_lemma, term_frequency
+
+def compute_lookups(df):
+  lookup_list = []
+  for _, row in tqdm(df.iterrows(), total=len(df)): 
+    lookup_dict = {}
+    id = 0
+    j = 1
+    for el in row.bert_tokenized_doc_tokens:
+      for _ in range(len(el)):
+        lookup_dict[j] = id
+        j += 1
+      id += 1
+    lookup_list.append(lookup_dict)
+  return lookup_list
+  
