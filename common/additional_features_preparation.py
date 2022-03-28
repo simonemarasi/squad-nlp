@@ -2,7 +2,7 @@ import nltk
 from nltk.data import load
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from common.constants import PAD_POS, MAX_CONTEXT_LEN
+from config import PAD_POS, MAX_CONTEXT_LEN
 import numpy as np
 
 nltk.download('tagsets')
@@ -50,9 +50,15 @@ def term_frequency(tokens):
     return np.reshape(tf, (l,-1))
 
 def build_exact_lemma_features(df, maxlen):
+    """
+    Computes and pad the exact lemma features for the questions and context columns of the dataframe given as argument
+    """
     lemma_array = [exact_lemma(quest_tokens, doc_tokens) for (quest_tokens, doc_tokens) in zip(df.proc_quest_tokens, df.proc_doc_tokens)]  
     return pad_sequences(lemma_array, maxlen = maxlen, padding='post', truncating='post', value=np.array([0, 0]))
 
 def build_term_frequency_features(df, maxlen):
+    """
+    Computes the term frequency features for the context column of the dataframe given as argument
+    """
     tf = [term_frequency(tokens) for tokens in df.proc_doc_tokens]
     return pad_sequences(tf, maxlen = maxlen, padding='post', dtype='float64', truncating='post', value=0.0)

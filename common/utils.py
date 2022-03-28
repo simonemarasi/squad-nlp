@@ -1,6 +1,7 @@
 import json
 
 def load_json_file(filepath):
+  """Load a JSON file in the specified filepath"""
   with open(filepath) as json_file:
     return json.load(json_file)['data']
 

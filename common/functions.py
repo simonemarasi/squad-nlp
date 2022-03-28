@@ -1,6 +1,6 @@
 from common.utils import is_whitespace, whitespace_tokenize
 import pandas as pd
-from common.constants import PUNCTUATION, EMPTY_TOKEN
+from config import PUNCTUATION, EMPTY_TOKEN
 import re
 import string
 import collections

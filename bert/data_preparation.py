@@ -1,6 +1,6 @@
 import os
 import os.path as osp
-from common.constants import BERT_SAVE_DIR, BERT_MODEL, PAD_POS, TRANSL_DICT, BERT_MAX_LEN
+from config import BERT_SAVE_DIR, BERT_MODEL, PAD_POS, TRANSL_DICT, BERT_MAX_LEN
 import numpy as np
 from tokenizers import BertWordPieceTokenizer
 from transformers import BertTokenizer
@@ -9,7 +9,9 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
 
 def save_bert_tokenizer():
-    # Save the slow pretrained tokenizer
+    """
+    Save the slow pretrained tokenizer
+    """
     slow_tokenizer = BertTokenizer.from_pretrained(BERT_MODEL)
     save_path = BERT_SAVE_DIR
     if not osp.exists(save_path):
@@ -17,9 +19,16 @@ def save_bert_tokenizer():
     slow_tokenizer.save_pretrained(save_path)
 
 def load_bert_tokenizer():
+    """
+    Load the BERT tokenizer
+    """
+    save_bert_tokenizer()
     return BertWordPieceTokenizer(osp.join(BERT_SAVE_DIR, "vocab.txt"), lowercase=True)
 
 def bert_tokenization(token_list, tokenizer):
+    """
+    Encode token by token the list of tokens using the tokenizer
+    """
     return [tokenizer.encode(token_list[i], add_special_tokens=False) for i in range(len(token_list))]
 
 def unpack_dataframe(df, with_features=True):
@@ -135,24 +144,33 @@ def unpack_dataframe(df, with_features=True):
     tot_bert_start.append(bert_start)
     tot_bert_end.append(bert_end)
 
+  tot_bert_start = np.array(tot_bert_start)
+  tot_bert_end = np.array(tot_bert_end)
   if with_features:
     return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_pos_tags, tot_exact_lemmas, tot_term_frequency, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
   else:
     return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
 
 def padding_sequences(input_ids, token_type_ids, train_attention_mask, pos_tags, exact_lemma, term_frequency, pos_to_idx):
-    input_ids = pad_sequences(input_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-    token_type_ids = pad_sequences(token_type_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-    train_attention_mask = pad_sequences(train_attention_mask, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-    pos_tags = [[pos_to_idx[el] for el in sequence] for sequence in pos_tags]
-    pos_tags = pad_sequences(pos_tags, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0)
-    pos_tags = to_categorical(pos_tags, num_classes=len(pos_to_idx.keys()))
-    exact_lemma = pad_sequences(exact_lemma, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value=np.array([0, 0]))
-    term_frequency = pad_sequences(term_frequency, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0.0)
+  """
+  UNUSED - CONTROLLARE SE SERVE ALTRIMENTI ELIMINARE
+  """
+  input_ids = pad_sequences(input_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
+  token_type_ids = pad_sequences(token_type_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
+  train_attention_mask = pad_sequences(train_attention_mask, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
+  pos_tags = [[pos_to_idx[el] for el in sequence] for sequence in pos_tags]
+  pos_tags = pad_sequences(pos_tags, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0)
+  pos_tags = to_categorical(pos_tags, num_classes=len(pos_to_idx.keys()))
+  exact_lemma = pad_sequences(exact_lemma, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value=np.array([0, 0]))
+  term_frequency = pad_sequences(term_frequency, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0.0)
 
-    return input_ids, token_type_ids, train_attention_mask, pos_tags, exact_lemma, term_frequency
+  return input_ids, token_type_ids, train_attention_mask, pos_tags, exact_lemma, term_frequency
 
 def compute_lookups(df):
+  """
+  Build a lookup table between the tokenized token and its original position.
+  This is due the BERT lemmatization that could mess up the final start and end answer indices.
+  """
   lookup_list = []
   for _, row in tqdm(df.iterrows(), total=len(df)): 
     lookup_dict = {}

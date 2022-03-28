@@ -1,5 +1,5 @@
 import tensorflow as tf
-from common.constants import MAX_CONTEXT_LEN
+from config import MAX_CONTEXT_LEN
 
 class Attention(tf.keras.Model):
     """

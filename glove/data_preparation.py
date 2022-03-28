@@ -1,4 +1,4 @@
-from common.constants import MAX_CONTEXT_LEN, MAX_QUEST_LEN, PAD_TOKEN
+from config import MAX_CONTEXT_LEN, MAX_QUEST_LEN, PAD_TOKEN
 from tensorflow.keras.preprocessing.sequence import pad_sequences  
 import numpy as np
 
@@ -13,7 +13,7 @@ def remove_not_valid_answer(df):
     df = df[df['end_position'] <= MAX_CONTEXT_LEN]
     return df
 
-def remove_too_long_samples(df):
+def remove_outliers(df):
     """
     Removes samples from the dataframe where number of tokens of either context or question is greater than thresholds
     """
@@ -32,9 +32,3 @@ def embed_and_pad_sequences(df, word2index, embedding_model):
     X_doc = pad_sequences(maxlen=MAX_CONTEXT_LEN, sequences=X_doc, padding="post", truncating="post", value=word2index[PAD_TOKEN])
 
     return X_quest, X_doc
-
-def check_for_nan(list):
-  for array in list:
-    if np.isnan(np.sum(array)):
-      return True
-  return False

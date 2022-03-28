@@ -2,7 +2,7 @@ from common.utils import *
 from common.functions import *
 from glove.data_preparation import *
 from common.additional_features_preparation import *
-from common.constants import *
+from config import *
 from glove.callback import *
 from glove.glove_embedding import *
 from glove.models import *
@@ -12,25 +12,23 @@ import os
 from argparse import ArgumentParser
 from datetime import datetime
 
-print("\n\n")
-
 parser = ArgumentParser()
-# parser.add_argument("-mode", 
-#                     dest="mode", 
-#                     required=True,
-#                     choices=['train', 'test'],
-#                     help="Select the mode to run the model in.",
-#                     metavar="MODE")    
+parser.add_argument("-mode", 
+                    dest="mode", 
+                    required=True,
+                    choices=['train', 'test'],
+                    help="Select the mode to run the model in.",
+                    metavar="MODE")    
 
 parser.add_argument("-df", "--data-file", 
                     dest="datafile", 
-                    required=True,
+                    default=DATA_PATH,
                     help="Name of the json file for training or testing",
                     metavar="DIR")
 
 parser.add_argument("-od", "--output-directory", 
                     dest="outputdir", 
-                    required=True,
+                    default=GLOVE_WEIGHTS_PATH,
                     help="Name of the directory where the output from training is saved (weights and history)",
                     metavar="DIR")
 
@@ -39,36 +37,29 @@ parser.add_argument("-wf", "--weights_file",
                     required=False,
                     help=".h5 file where the model weights are saved. Loaded to continue training or testing", metavar="weightfile.h5")
 
-parser.add_argument("-lr", "--learning_rate",
-                    type=float,
-                    dest="learning_rate", 
-                    default=5e-5,
-                    required=False,
-                    help="Learning rate of the optimizer",
-                    metavar="XX")
-
-parser.add_argument("-bs", "--batch_size",
-                    type=int,
-                    dest="batch_size", 
-                    required=True,
-                    help="Batch size for the fit function",
-                    metavar="XX")
-
-parser.add_argument("-e", "--epochs",
-                    type=int,
-                    dest="epochs", 
-                    required=True,
-                    help="Number of training epochs",
-                    metavar="XX")
-                    
-parser.add_argument("-w", "--workers", 
-                    dest="workers",
-                    type=int,
-                    default=1, 
-                    required=False,
-                    help="Number of workers to use in the fit function", metavar="XX")
-
 args = vars(parser.parse_args())
+
+print("######################")
+print("#### GLOVE RUNNER ####")
+print("######################")
+print("\nModels available:\n")
+print("1) Baseline")
+print("2) Baseline with attention")
+print("3) Baseline with features")
+print("4) Baseline with attention and features")
+
+
+def get_model_input(prompt):
+    while True:
+        value = input(prompt)
+        if value not in ["1", "2", "3", "4"]:
+            print("Sorry, your choice must be between the four allowed")
+            continue
+        else:
+            break
+    return value
+
+model_choice = get_model_input("\nPlease type the model number to run with the current configuration: ")
 
 print("Loading Data")
 FILEPATH = args['datafile']
@@ -78,24 +69,18 @@ train = data[:VAL_SPLIT_INDEX]
 eval = data[VAL_SPLIT_INDEX:]
 
 print("Preparing dataset")
-train = read_examples(train)
-eval = read_examples(eval)
 
-train.sample(frac=1).reset_index(drop=True)
-eval.sample(frac=1).reset_index(drop=True)
+def preprocess_split(split):
+    split = read_examples(split)
+    split.sample(frac=1).reset_index(drop=True)
+    split["proc_doc_tokens"] = split['doc_tokens'].apply(preprocess_tokens)
+    split["proc_quest_tokens"] = split['quest_tokens'].apply(preprocess_tokens)
+    split = remove_outliers(split)
+    split = remove_not_valid_answer(split)
+    return split
 
-print("Tokenization and processing")
-train["proc_doc_tokens"] = train['doc_tokens'].apply(preprocess_tokens)
-train["proc_quest_tokens"] = train['quest_tokens'].apply(preprocess_tokens)
-
-eval["proc_doc_tokens"] = eval['doc_tokens'].apply(preprocess_tokens)
-eval["proc_quest_tokens"] = eval['quest_tokens'].apply(preprocess_tokens)
-
-train = remove_too_long_samples(train)
-eval = remove_too_long_samples(eval)
-
-train = remove_not_valid_answer(train)
-eval = remove_not_valid_answer(eval)
+train = preprocess_split(train)
+eval = preprocess_split(eval)
 
 print("Preparing embedding")
 embedding_model = load_embedding_model()
@@ -106,12 +91,12 @@ print("Processing tokens to be fed into model")
 X_train_quest, X_train_doc = embed_and_pad_sequences(train, word2index, embedding_model)
 X_val_quest, X_val_doc = embed_and_pad_sequences(eval, word2index, embedding_model)
 
-y_train_start = train.start_position.to_numpy()
-y_train_end = train.end_position.to_numpy()
-y_val_start = eval.start_position.to_numpy()
-y_val_end = eval.end_position.to_numpy()
-val_doc_tokens = eval.doc_tokens.to_numpy()
-val_answer_text = eval.orig_answer_text.to_numpy()
+y_train_start = train["start_position"].to_numpy()
+y_train_end = train["end_position"].to_numpy()
+y_val_start = eval["start_position"].to_numpy()
+y_val_end = eval["end_position"].to_numpy()
+val_doc_tokens = eval["doc_tokens"].to_numpy()
+val_answer_text = eval["orig_answer_text"].to_numpy()
 
 print("Building additional features (it may take a while...)")
 X_train_doc_tags, pos_number = build_pos_features(train, MAX_CONTEXT_LEN)
@@ -136,15 +121,22 @@ print("Fitting data to generators")
 TRAIN_LEN = X_train[0].shape[0]
 VAL_LEN = X_val[0].shape[0]
 
-train_generator = features_data_generator(X_train, y_train, args['batch_size'])
-val_generator = features_data_generator(X_val, y_val, args['batch_size'])
+train_generator = features_data_generator(X_train, y_train, BATCH_SIZE)
+val_generator = features_data_generator(X_val, y_val, BATCH_SIZE)
 
 print("Creating model:\n")
-model = attention_with_features(args['learning_rate'], embedding_model, pos_number)
+if model_choice == "1":
+    model = baseline_model(LEARNING_RATE, embedding_model)
+elif model_choice == "2":
+    model = baseline_with_features(LEARNING_RATE, embedding_model, pos_number)
+elif model_choice == "3":
+    model = attention_model(LEARNING_RATE, embedding_model)
+elif model_choice == "4":
+    model = attention_with_features(LEARNING_RATE, embedding_model, pos_number)
+
 model.summary()
 
-now = datetime.now()
-now = now.strftime("%d-%m-%Y_%H-%M-%S")
+now = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 exact_match_callback = ExactMatch(X_val, y_val, val_doc_tokens, val_answer_text)
 es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
@@ -153,12 +145,12 @@ print("\nTrain start:\n\n")
 history = model.fit(
     train_generator,
     validation_data = val_generator,
-    steps_per_epoch = TRAIN_LEN / args['batch_size'],
-    validation_steps = VAL_LEN / args['batch_size'],
-    epochs=args['epochs'],
+    steps_per_epoch = TRAIN_LEN / BATCH_SIZE,
+    validation_steps = VAL_LEN / BATCH_SIZE,
+    epochs=EPOCHS,
     verbose=1,
     callbacks=[exact_match_callback, es],
-    workers = args['workers']
+    workers = WORKERS
 )
 
 print("### SAVING MODEL ###")

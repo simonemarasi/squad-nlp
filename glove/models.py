@@ -1,4 +1,4 @@
-from common.constants import LR, LSTM_UNITS, MAX_CONTEXT_LEN, MAX_QUEST_LEN
+from config import LSTM_UNITS, MAX_CONTEXT_LEN, MAX_QUEST_LEN
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Bidirectional, LSTM, Input, Concatenate, Flatten, Activation
 from tensorflow.keras.optimizers import Adam

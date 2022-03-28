@@ -1,6 +1,6 @@
 import gensim.downloader as gloader
 import numpy as np
-from common.constants import EMBEDDING_DIMENSION, URL_EMBEDDING_MODEL
+from config import EMBEDDING_DIMENSION, URL_EMBEDDING_MODEL
 from common.utils import list_to_dict
 import requests
 import pickle
