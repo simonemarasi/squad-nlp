@@ -43,3 +43,15 @@ LEARNING_RATE = 5e-5
 EPOCHS = 25
 BATCH_SIZE = 64
 LSTM_UNITS = 250
+
+# ###################
+# BIDAF CONFIGURATION
+# ###################
+
+CONV_LAYERS = [[150, 10],
+               [150, 7],
+               [150, 5],
+               [150, 3]]
+FULLY_CONNECTED_LAYERS = [1024, 1024]
+MAX_WORD_LEN = 15
+NUM_HIGHWAY = 2
