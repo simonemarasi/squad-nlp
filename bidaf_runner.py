@@ -149,7 +149,7 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
 
     print("Creating model:\n")
     bidafModel = model.BidafLikeModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, EMBEDDING_DIMENSION, CONCAT_EMBEDDING_DIMENSION)
-    bidafModel()
+    bidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char)
 
     bidafModel.summary()
 

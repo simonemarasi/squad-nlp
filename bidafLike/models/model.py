@@ -39,7 +39,7 @@ class BidafLikeModel(Model):
                                             num_classes=0,
                                             train_embedding=True)
 
-    def call(self):
+    def call(self, inputs_doc, inputs_quest, inputs_doc_char, inputs_quest_char):
         inputs_doc = self.inputs_doc(inputs_doc)
         inputs_quest = self.inputs_quest(inputs_quest)
         inputs_doc_char = self.inputs_doc_char(inputs_doc_char)
