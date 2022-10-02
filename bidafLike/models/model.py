@@ -1,8 +1,8 @@
 from tensorflow.keras.layers import Input, Embedding, Attention, Multiply, Bidirectional, Activation, Dropout, Dense, LSTM, Concatenate, TimeDistributed, Flatten
 from tensorflow.keras import Model
 from tensorflow.keras.activations import softmax
-from highway import Highway
-from charCnnModel import CharCNNModel
+from bidafLike.highway import Highway
+from bidafLike.models.charCnnModel import CharCNNModel
 from config import CONV_LAYERS, FULLY_CONNECTED_LAYERS, MAX_WORD_LEN, NUM_HIGHWAY
 
 class BidafLikeModel(Model):
@@ -39,7 +39,7 @@ class BidafLikeModel(Model):
                                             num_classes=0,
                                             train_embedding=True)
 
-    def call(self, inputs_doc, inputs_quest, inputs_doc_char, inputs_quest_char):
+    def call(self):
         inputs_doc = self.inputs_doc(inputs_doc)
         inputs_quest = self.inputs_quest(inputs_quest)
         inputs_doc_char = self.inputs_doc_char(inputs_doc_char)
