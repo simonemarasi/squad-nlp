@@ -21,4 +21,4 @@ def is_whitespace(c):
 
 def list_to_dict(l):
     """Convert a list to a dictionary with progressive index"""
-    return {index: el for (index, el) in enumerate(l)}  
+    return {index: el for (index, el) in enumerate(l)}

@@ -35,3 +35,13 @@ class Highway(Layer):
         identity_gated = Multiply()([carry_gate, x])
         value = Add()([transformed_gated, identity_gated])
         return value
+
+    
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+    def get_config(self):
+        config = super().get_config()
+        config['activation'] = self.activation
+        config['transform_gate_bias'] = self.transform_gate_bias
+        return config

@@ -10,7 +10,9 @@ from glove.layers import *
 from glove.generators import *
 import os
 from datetime import datetime
+from bidafLike.models import charCnnModel
 from bidafLike.models import model
+from common import learningRateReducer
 
 def get_model_input(prompt):
     while True:
@@ -138,15 +140,48 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
     val_generator = features_data_generator(X_val, y_val, BATCH_SIZE)
 
     print("Creating model:\n")
-    bidafModel = model.BidafLikeModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, EMBEDDING_DIMENSION, CONCAT_EMBEDDING_DIMENSION)
-    bidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char)
 
-    bidafModel.summary()
+    doc_char_model = charCnnModel.build_charCnn_model(input_shape=X_train_doc_char[0].shape,
+                    embedding_size=300,
+                    conv_layers=CONV_LAYERS,
+                    fully_connected_layers=FULLY_CONNECTED_LAYERS,
+                    dropout_p=0.1,
+                    optimizer="adam",
+                    loss="categorical_crossentropy",
+                    num_classes = 0,
+                    char_embedding_matrix=char_embedding_matrix,
+                    include_top = False,
+                    train_embedding = True)
+
+    doc_char_model.load_weights(CHAR_WEIGHTS_PATH)
+    doc_char_model.trainable = False
+
+    quest_char_model = charCnnModel.build_charCnn_model(input_shape=X_train_quest_char[0].shape,
+                    embedding_size=300,
+                    conv_layers=CONV_LAYERS,
+                    fully_connected_layers=FULLY_CONNECTED_LAYERS,
+                    dropout_p=0.1,
+                    optimizer="adam",
+                    loss="categorical_crossentropy",
+                    num_classes = 0,
+                    char_embedding_matrix=char_embedding_matrix,
+                    include_top = False,
+                    train_embedding = True)
+
+    quest_char_model.load_weights(CHAR_WEIGHTS_PATH)
+    quest_char_model.trainable = False
+
+    bidafModel = model.buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model)
+
+    loss = SparseCategoricalCrossentropy(from_logits=False)
+    optimizer = Adam(learning_rate=5e-4)
+    bidafModel.compile(optimizer=optimizer, loss=[loss, loss])
 
     now = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
     exact_match_callback = ExactMatch(X_val, y_val, val_doc_tokens, val_answer_text)
     es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    lr = learningRateReducer.LearningRateReducer(0.8)
 
     print("\nTrain start:\n\n")
     history = bidafModel.fit(
@@ -156,7 +191,7 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
         validation_steps = VAL_LEN / BATCH_SIZE,
         epochs=EPOCHS,
         verbose=1,
-        callbacks=[exact_match_callback, es],
+        callbacks=[exact_match_callback, es, lr],
         workers = WORKERS
     )
 
