@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 class LearningRateReducer(tf.keras.callbacks.Callback):
 
   def __init__(self, downscale_factor):

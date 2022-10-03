@@ -10,8 +10,7 @@ from glove.layers import *
 from glove.generators import *
 import os
 from datetime import datetime
-from bidafLike.models import charCnnModel
-from bidafLike.models import model
+from bidafLike.models import *
 from common import learningRateReducer
 
 def get_model_input(prompt):
