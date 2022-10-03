@@ -40,10 +40,10 @@ class BidafLikeModel(Model):
                                             train_embedding=True)
 
     def call(self, inputs_doc, inputs_quest, inputs_doc_char, inputs_quest_char):
-        inputs_doc = self.inputs_doc(inputs_doc)
-        inputs_quest = self.inputs_quest(inputs_quest)
-        inputs_doc_char = self.inputs_doc_char(inputs_doc_char)
-        inputs_quest_char = self.inputs_quest_char(inputs_quest_char)
+        #inputs_doc = self.inputs_doc(inputs_doc)
+        #inputs_quest = self.inputs_quest(inputs_quest)
+        #inputs_doc_char = self.inputs_doc_char(inputs_doc_char)
+        #inputs_quest_char = self.inputs_quest_char(inputs_quest_char)
 
         passage_embedding = self.embedding(inputs_doc)
         passage_embedding_char = self.doc_char_model(inputs_doc_char)

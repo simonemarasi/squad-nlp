@@ -24,11 +24,10 @@ def get_model_input(prompt):
 
 def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
 
-    print("######################")
+    print("###########################")
     print("#### BIDAF-LIKE RUNNER ####")
-    print("######################")
-    model_choice = 1
-
+    print("###########################")
+    
     print("Loading Data")
     data = load_json_file(filepath)
 
@@ -64,20 +63,6 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
     y_val_end = eval["end_position"].to_numpy()
     val_doc_tokens = eval["doc_tokens"].to_numpy()
     val_answer_text = eval["orig_answer_text"].to_numpy()
-
-    print("Building additional features (it may take a while...)")
-    X_train_doc_tags, pos_number = build_pos_features(train, MAX_CONTEXT_LEN)
-    X_train_exact_lemma = build_exact_lemma_features(train, MAX_CONTEXT_LEN)
-    X_train_tf = build_term_frequency_features(train, MAX_CONTEXT_LEN)
-
-    X_eval_doc_tags, pos_number = build_pos_features(eval, MAX_CONTEXT_LEN)
-    X_eval_exact_lemma = build_exact_lemma_features(eval, MAX_CONTEXT_LEN)
-    X_eval_tf = build_term_frequency_features(eval, MAX_CONTEXT_LEN)
-
-    X_train = [X_train_quest, X_train_doc, X_train_doc_tags, X_train_exact_lemma, X_train_tf]
-    y_train = [y_train_start, y_train_end]
-    X_val = [X_val_quest, X_val_doc, X_eval_doc_tags, X_eval_exact_lemma, X_eval_tf]
-    y_val = [y_val_start, y_val_end]
 
     #######################################
 
@@ -134,6 +119,11 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
         embedding_matrix[word2index[word]] = embedding_model[word]
 
     #########################################
+
+    X_train = [X_train_quest, X_train_doc, X_train_quest_char, X_train_doc_char]
+    y_train = [y_train_start, y_train_end]
+    X_val = [X_val_quest, X_val_doc, X_val_quest_char, X_val_doc_char]
+    y_val = [y_val_start, y_val_end]
 
     print("Freeing up memory, cleaning unused variables")
     del train
