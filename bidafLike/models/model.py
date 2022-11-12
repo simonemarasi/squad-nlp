@@ -2,8 +2,7 @@ from tensorflow.keras.layers import Input, Embedding, Attention, Multiply, Bidir
 from tensorflow.keras import Model
 from tensorflow.keras.activations import softmax
 from bidafLike.highway import Highway
-from bidafLike.models.charCnnModel import 
-from config import CONCAT_EMBEDDING_DIMENSION, CONV_LAYERS, EMBEDDING_DIMENSION, FULLY_CONNECTED_LAYERS, MAX_WORD_LEN, NUM_HIGHWAY
+from config import CONCAT_EMBEDDING_DIMENSION, EMBEDDING_DIMENSION
 
 def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model):
 

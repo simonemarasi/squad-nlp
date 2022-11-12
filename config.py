@@ -13,6 +13,7 @@ BIDAF_WEIGHTS_PATH = osp.join("data", "bidaf", "weights")
 # #########
 # CONSTANTS
 # #########
+ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
 PUNCTUATION = '!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~–—'
 EMPTY_TOKEN = '<EMPTY>'
 PAD_TOKEN = '<PAD>'
@@ -57,3 +58,4 @@ FULLY_CONNECTED_LAYERS = [1024, 1024]
 MAX_WORD_LEN = 15
 NUM_HIGHWAY = 2
 CHAR_WEIGHTS_PATH = ''
+LR_REDUCER_RATE = 0.8

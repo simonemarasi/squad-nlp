@@ -2,7 +2,7 @@ from tensorflow.keras.models import Model
 from config import MAX_WORD_LEN
 from tensorflow.keras.layers import Input, Dense, Concatenate, Flatten, Convolution1D, GlobalMaxPooling1D, Embedding, AlphaDropout, TimeDistributed
 
-def build_charCnn_model(input_shape, embedding_size, char_embedding_matrix,conv_layers, fully_connected_layers, dropout_p, 
+def buildCharCnnModel(input_shape, embedding_size, char_embedding_matrix,conv_layers, fully_connected_layers, dropout_p, 
                 num_classes, optimizer='adam', loss='categorical_crossentropy', include_top = True, train_embedding = False):
     """
     Build and compile the Character Level CNN model

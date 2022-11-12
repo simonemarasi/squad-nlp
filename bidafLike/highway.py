@@ -13,7 +13,7 @@ class Highway(Layer):
         super(Highway, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        # Create a trainable weight variable for this layer.
+        
         dim = input_shape[-1]
         transform_gate_bias_initializer = Constant(self.transform_gate_bias)
         self.dense_1 = Dense(units=dim, bias_initializer=transform_gate_bias_initializer)
@@ -22,7 +22,7 @@ class Highway(Layer):
         self.dense_2.build(input_shape)
         self._trainable_weights = self.dense_1.trainable_weights + self.dense_2.trainable_weights
 
-        super(Highway, self).build(input_shape)  # Be sure to call this at the end
+        super(Highway, self).build(input_shape)
 
     def call(self, x):
         dim = K.int_shape(x)[-1]
@@ -35,7 +35,6 @@ class Highway(Layer):
         identity_gated = Multiply()([carry_gate, x])
         value = Add()([transformed_gated, identity_gated])
         return value
-
     
     def compute_output_shape(self, input_shape):
         return input_shape

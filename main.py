@@ -27,7 +27,8 @@ parser.add_argument("-od", "--output-directory",
 parser.add_argument("-wf", "--weights_file",
                     dest="weights",
                     required=False,
-                    help=".h5 file where the model weights are saved. Loaded to continue training or testing", metavar="weightfile.h5")
+                    help=".h5 file where the model weights are saved. Loaded to continue training or testing", 
+                    metavar="weightfile.h5")
 
 args = vars(parser.parse_args())
 
@@ -48,10 +49,11 @@ if __name__ == '__main__':
             continue
         else:
             break
+        
     if model_to_run == "1":
-        model = glove_runner(args['datafile'], args['outputdir'])
+        model = glove_runner(args['datafile'], args['outputdir'], args['mode'])
     elif model_to_run == "2":
-        model = bert_runner(args['datafile'], args['outputdir'])
+        model = bert_runner(args['datafile'], args['outputdir'], args['mode'])
     elif model_to_run == "3":
-        model = bidaf_runner(args['datafile'], args['outputdir'])
-    pass
+        model = bidaf_runner(args['datafile'], args['outputdir'], args['mode'])
+    

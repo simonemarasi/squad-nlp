@@ -9,9 +9,9 @@ from glove.models import *
 from glove.layers import *
 from glove.generators import *
 import os
-from datetime import datetime
-from bidafLike.models import *
 from common import learningRateReducer
+from bidafLike.models import charCnnModel
+from bidafLike.models import model
 
 def get_model_input(prompt):
     while True:
@@ -23,7 +23,7 @@ def get_model_input(prompt):
             break
     return value
 
-def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
+def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test"):
 
     print("###########################")
     print("#### BIDAF-LIKE RUNNER ####")
@@ -57,6 +57,8 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
     print("Processing tokens to be fed into model")
     X_train_quest, X_train_doc = embed_and_pad_sequences(train, word2index, embedding_model)
     X_val_quest, X_val_doc = embed_and_pad_sequences(eval, word2index, embedding_model)
+    X_val_ids = eval["qas_id"].values
+    X_val_doc_tokens = eval["doc_tokens"].to_list()
 
     y_train_start = train["start_position"].to_numpy()
     y_train_end = train["end_position"].to_numpy()
@@ -67,19 +69,11 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
 
     #######################################
 
-    alphabet_string = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
-    alphabet = []
-    for char in alphabet_string:
-        alphabet.append(char)
-
-    index2char_list = alphabet
-    index2char_list.append("<PAD>")
-    index2char_list.append("<UNK>")
-
+    index2char_list = list(ALPHABET).extend(["<PAD>", "<UNK>"])
     index2char = list_to_dict(index2char_list)
     char2index = {value : key for (key, value) in index2char.items()}
 
-    # create char_embedding_matrix 
+    # Create char_embedding_matrix
 
     char_embedding_matrix = np.zeros((len(index2char), EMBEDDING_DIMENSION))
     for index in index2char:
@@ -119,8 +113,6 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
     for word in word2index:
         embedding_matrix[word2index[word]] = embedding_model[word]
 
-    #########################################
-
     X_train = [X_train_quest, X_train_doc, X_train_quest_char, X_train_doc_char]
     y_train = [y_train_start, y_train_end]
     X_val = [X_val_quest, X_val_doc, X_val_quest_char, X_val_doc_char]
@@ -140,7 +132,7 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
 
     print("Creating model:\n")
 
-    doc_char_model = charCnnModel.build_charCnn_model(input_shape=X_train_doc_char[0].shape,
+    doc_char_model = charCnnModel.buildCharCnnModel(input_shape=X_train_doc_char[0].shape,
                     embedding_size=300,
                     conv_layers=CONV_LAYERS,
                     fully_connected_layers=FULLY_CONNECTED_LAYERS,
@@ -155,7 +147,7 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
     doc_char_model.load_weights(CHAR_WEIGHTS_PATH)
     doc_char_model.trainable = False
 
-    quest_char_model = charCnnModel.build_charCnn_model(input_shape=X_train_quest_char[0].shape,
+    quest_char_model = charCnnModel.buildCharCnnModel(input_shape=X_train_quest_char[0].shape,
                     embedding_size=300,
                     conv_layers=CONV_LAYERS,
                     fully_connected_layers=FULLY_CONNECTED_LAYERS,
@@ -170,20 +162,25 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
     quest_char_model.load_weights(CHAR_WEIGHTS_PATH)
     quest_char_model.trainable = False
 
-    bidafModel = model.buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model)
+    bidafModel = model.buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model)    
+    weights_path = osp.join(BIDAF_WEIGHTS_PATH)
 
     loss = SparseCategoricalCrossentropy(from_logits=False)
     optimizer = Adam(learning_rate=5e-4)
     bidafModel.compile(optimizer=optimizer, loss=[loss, loss])
 
-    now = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-
     exact_match_callback = ExactMatch(X_val, y_val, val_doc_tokens, val_answer_text)
     es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
-    lr = learningRateReducer.LearningRateReducer(0.8)
+    lr = learningRateReducer.LearningRateReducer(LR_REDUCER_RATE)
 
-    print("\nTrain start:\n\n")
-    history = bidafModel.fit(
+    if mode == 'test':
+        print("\nLoading model weights:\n\n")
+        MODEL_PATH = osp.join(weights_path, "weights.h5")
+        bidafModel.load_weights(MODEL_PATH)
+
+    elif mode == 'train':        
+        print("\nTrain start:\n\n")
+        bidafModel.fit(
         train_generator,
         validation_data = val_generator,
         steps_per_epoch = TRAIN_LEN / BATCH_SIZE,
@@ -191,13 +188,24 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH):
         epochs=EPOCHS,
         verbose=1,
         callbacks=[exact_match_callback, es, lr],
-        workers = WORKERS
-    )
+        workers = WORKERS)
+        print("### SAVING MODEL ###")
+        bidafModel.save_weights(os.path.join(outputdir, 'weights.h5'))
+        print("Weights saved to: weights.h5 inside the model directory")
+    
+        # Compute predictions using the evaluation set
+    out = bidafModel.predict(X_val)
+    start_idx = np.argmax(out[0], axis=-1).tolist()
+    end_idx = np.argmax(out[1], axis=-1).tolist()
+    result = {}
+    for i in range(len(X_val[0])):
+        idx = X_val_ids[i]
+        start = start_idx[i]
+        end = end_idx[i]
+        pred = ' '.join(X_val_doc_tokens[i][start:end])
+        result[idx] = pred
+    json_object = json.dumps(result)
+    with open(osp.join(outputdir, "predictions.txt"), "w") as outfile:
+        outfile.write(json_object)
 
-    print("### SAVING MODEL ###")
-    bidafModel.save_weights(os.path.join(outputdir,'weights-{}.h5'.format(now)))
-    print("Weights saved to: weights-{}.h5 inside the model directory".format(now))
-    print("")
-    print("### SAVING HISTORY ###")
-    df_hist = pd.DataFrame.from_dict(history.history)
-    df_hist.to_csv(os.path.join(outputdir,'history-{}.csv'.format(now)), mode='w', header=True)
+    return bidafModel
