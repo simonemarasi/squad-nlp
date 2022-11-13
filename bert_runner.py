@@ -42,10 +42,14 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
     def preprocess_split(split):
         split = read_examples(split)
         split = shuffle(split)
-        split["proc_doc_tokens"] = split['doc_tokens'].apply(preprocess_tokens)
-        split["proc_quest_tokens"] = split['quest_tokens'].apply(preprocess_tokens)
-        split["bert_tokenized_doc_tokens"] = split['doc_tokens'].apply(bert_tokenization, tokenizer=tokenizer)
-        split["bert_tokenized_quest_tokens"] = split['quest_tokens'].apply(bert_tokenization, tokenizer=tokenizer)
+        split["proc_doc_tokens"] = split["doc_tokens"].apply(preprocess_tokens)
+        split["proc_quest_tokens"] = split["quest_tokens"].apply(preprocess_tokens)
+        split["bert_tokenized_doc_tokens"] = split["doc_tokens"].apply(bert_tokenization, tokenizer=tokenizer)
+        split["bert_tokenized_quest_tokens"] = split["quest_tokens"].apply(bert_tokenization, tokenizer=tokenizer)
+        if (model_choice == "3"):
+            split["tf"] = [term_frequency(con_tokens) for con_tokens in split["proc_doc_tokens"]]
+            split["exact_lemma"] = [exact_lemma(ques_tokens, con_tokens) for (ques_tokens, con_tokens) in zip(split["proc_quest_tokens"], split["proc_doc_tokens"])]
+            split["pos_tag"] = [nltk.pos_tag(s) for s in split["proc_doc_tokens"]]
         return split
 
     def get_additional_features(split):
@@ -60,21 +64,11 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
 
     if (model_choice == "3"):
         print("Preparing additional features")
-        X_train_doc_tags, X_train_exact_lemma, X_train_tf = get_additional_features(train)
-        X_eval_doc_tags, X_eval_exact_lemma, X_eval_tf = get_additional_features(eval)
-
-    if (model_choice == "3"):
-        X_train_input_ids, X_train_token_type_ids, X_train_attention_mask, X_train_pos_tags, X_train_exact_lemmas, X_train_term_frequency, y_train_start, y_train_end, train_doc_tokens, train_orig_answer_text = unpack_dataframe(train)
-        X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask, X_eval_pos_tags, X_eval_exact_lemmas, X_eval_term_frequency, y_eval_start, y_eval_end, eval_doc_tokens, eval_orig_answer_text = unpack_dataframe(eval)
+        X_train_input_ids, X_train_token_type_ids, X_train_attention_mask, X_train_pos_tags, X_train_exact_lemma, X_train_tf, y_train_start, y_train_end, train_doc_tokens, train_orig_answer_text = unpack_dataframe(train)
+        X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask, X_eval_pos_tags, X_eval_exact_lemma, X_eval_tf, y_eval_start, y_eval_end, eval_doc_tokens, eval_orig_answer_text = unpack_dataframe(eval)
     else:
         X_train_input_ids, X_train_token_type_ids, X_train_attention_mask, y_train_start, y_train_end, train_doc_tokens, train_orig_answer_text = unpack_dataframe(train, with_features=False)
         X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask, y_eval_start, y_eval_end, eval_doc_tokens, eval_orig_answer_text = unpack_dataframe(eval, with_features=False)
-
-    def pad_inputs(input_ids, token_type_ids, attention_mask):
-        input_ids = pad_sequences(X_train_input_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-        token_type_ids = pad_sequences(X_train_token_type_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-        attention_mask = pad_sequences(X_train_attention_mask, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-        return input_ids, token_type_ids, attention_mask
 
     eval_lookup_list = compute_lookups(eval)
     X_val_qas_id = eval["qas_id"].values.tolist()
@@ -82,12 +76,15 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
     X_train_input_ids, X_train_token_type_ids, X_train_attention_mask = pad_inputs(X_train_input_ids, X_train_token_type_ids, X_train_attention_mask)
     X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask = pad_inputs(X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask)
 
-
     X_train = [X_train_input_ids, X_train_token_type_ids, X_train_attention_mask]
     X_val = [X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask]
+
     if (model_choice == "3"):
-        X_train.extend([X_train_doc_tags, X_train_exact_lemma, X_train_tf])
-        X_val.extend([X_eval_doc_tags, X_eval_exact_lemma, X_eval_tf])
+        X_train_pos_tags, X_train_exact_lemma, X_train_tf = pad_additonal_features(X_train_pos_tags, X_train_exact_lemma, X_train_tf)
+        X_eval_pos_tags, X_eval_exact_lemma, X_eval_tf = pad_additonal_features(X_eval_pos_tags, X_eval_exact_lemma, X_eval_tf)
+        X_train.extend([X_train_pos_tags, X_train_exact_lemma, X_train_tf])
+        X_val.extend([X_eval_pos_tags, X_eval_exact_lemma, X_eval_tf])
+        
     y_train = [y_train_start, y_train_end]
     y_val = [y_eval_start, y_eval_end]
 
@@ -116,14 +113,14 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
     model.summary()
 
     exact_match_callback = ExactMatch(X_val, y_val, eval_doc_tokens, X_eval_input_ids, eval_orig_answer_text, eval_lookup_list)
-    es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+    es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
 
-    if mode == 'test':
+    if mode == "test":
         print("\nLoading model weights:\n\n")
         MODEL_PATH = osp.join(weights_path, "weights.h5")
         model.load_weights(MODEL_PATH)
 
-    elif mode == 'train':  
+    elif mode == "train":  
         print("\nTrain start:\n\n")
         model.fit(
             train_generator,
@@ -135,7 +132,7 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
             callbacks=[exact_match_callback, es],
             workers=WORKERS)
         print("### SAVING MODEL ###")
-        model.save_weights(os.path.join(outputdir, 'weights.h5'))
+        model.save_weights(os.path.join(outputdir, "weights.h5"))
         print("Weights saved to: weights.h5 inside the model directory")
 
     # Compute predictions using the evaluation set

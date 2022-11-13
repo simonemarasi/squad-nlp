@@ -7,6 +7,7 @@ from transformers import BertTokenizer
 from tqdm import tqdm
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
+from common.additional_features_preparation import build_pos_indices
 
 def save_bert_tokenizer():
     """
@@ -151,20 +152,20 @@ def unpack_dataframe(df, with_features=True):
   else:
     return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
 
-def padding_sequences(input_ids, token_type_ids, train_attention_mask, pos_tags, exact_lemma, term_frequency, pos_to_idx):
-  """
-  UNUSED - CONTROLLARE SE SERVE ALTRIMENTI ELIMINARE
-  """
-  input_ids = pad_sequences(input_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-  token_type_ids = pad_sequences(token_type_ids, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-  train_attention_mask = pad_sequences(train_attention_mask, padding='post', truncating='post', maxlen=BERT_MAX_LEN)
-  pos_tags = [[pos_to_idx[el] for el in sequence] for sequence in pos_tags]
-  pos_tags = pad_sequences(pos_tags, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0)
-  pos_tags = to_categorical(pos_tags, num_classes=len(pos_to_idx.keys()))
-  exact_lemma = pad_sequences(exact_lemma, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value=np.array([0, 0]))
-  term_frequency = pad_sequences(term_frequency, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0.0)
+def pad_inputs(input_ids, token_type_ids, attention_mask):
+    input_ids = pad_sequences(input_ids, padding="post", truncating="post", maxlen=BERT_MAX_LEN)
+    token_type_ids = pad_sequences(token_type_ids, padding="post", truncating="post", maxlen=BERT_MAX_LEN)
+    attention_mask = pad_sequences(attention_mask, padding="post", truncating="post", maxlen=BERT_MAX_LEN)
+    return input_ids, token_type_ids, attention_mask
 
-  return input_ids, token_type_ids, train_attention_mask, pos_tags, exact_lemma, term_frequency
+def pad_additonal_features(pos_tags, exact_lemma, term_freq):
+    pos_to_idx, _ = build_pos_indices()
+    pos_tags = [[pos_to_idx[el] for el in sequence] for sequence in pos_tags]
+    pos_tags = pad_sequences(pos_tags, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0)
+    pos_tags = to_categorical(pos_tags, num_classes=len(pos_to_idx.keys()))
+    exact_lemma = pad_sequences(exact_lemma, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value=np.array([0, 0]))
+    term_freq = pad_sequences(term_freq, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0.0)
+    return pos_tags, exact_lemma, term_freq
 
 def compute_lookups(df):
   """
