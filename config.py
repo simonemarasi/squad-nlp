@@ -18,7 +18,7 @@ PUNCTUATION = '!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~–—'
 EMPTY_TOKEN = '<EMPTY>'
 PAD_TOKEN = '<PAD>'
 PAD_POS = 'PAD'
-VAL_SPLIT_INDEX = 375
+VAL_SPLIT_INDEX = 350
 
 # ###################
 # GLOVE CONFIGURATION
@@ -43,7 +43,7 @@ WORKERS = 4
 LEARNING_RATE = 5e-5
 EPOCHS = 25
 BATCH_SIZE = 64
-LSTM_UNITS = 250
+LSTM_UNITS = 256
 
 # ###################
 # BIDAF CONFIGURATION

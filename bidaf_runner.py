@@ -127,8 +127,8 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test"):
     TRAIN_LEN = X_train[0].shape[0]
     VAL_LEN = X_val[0].shape[0]
 
-    train_generator = features_data_generator(X_train, y_train, BATCH_SIZE)
-    val_generator = features_data_generator(X_val, y_val, BATCH_SIZE)
+    train_generator = baseline_data_generator(X_train, y_train, BATCH_SIZE)
+    val_generator = baseline_data_generator(X_val, y_val, BATCH_SIZE)
 
     print("Creating model:\n")
 
@@ -202,7 +202,7 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test"):
         idx = X_val_ids[i]
         start = start_idx[i]
         end = end_idx[i]
-        pred = ' '.join(X_val_doc_tokens[i][start:end])
+        pred = ' '.join(X_val_doc_tokens[i][start:end+1])
         result[idx] = pred
     json_object = json.dumps(result)
     with open(osp.join(outputdir, "predictions.txt"), "w") as outfile:

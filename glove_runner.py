@@ -157,7 +157,7 @@ def glove_runner(filepath, outputdir=GLOVE_WEIGHTS_PATH, mode="test"):
         idx = X_val_ids[i]
         start = start_idx[i]
         end = end_idx[i]
-        pred = ' '.join(X_val_doc_tokens[i][start:end])
+        pred = ' '.join(X_val_doc_tokens[i][start:end+1])
         result[idx] = pred
     json_object = json.dumps(result)
     with open(osp.join(outputdir, "predictions.txt"), "w") as outfile:
