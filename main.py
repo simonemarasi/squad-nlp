@@ -5,30 +5,38 @@ from bert_runner import bert_runner
 from bidaf_runner import bidaf_runner
 
 parser = ArgumentParser()
-parser.add_argument("-mode", 
-                    dest="mode", 
+parser.add_argument("-mode",
+                    dest="mode",
                     required=True,
                     choices=['train', 'test'],
-                    help="Select the mode to run the model in.",
+                    help="Select the mode to run the model in",
                     metavar="MODE")    
 
-parser.add_argument("-df", "--data-file", 
-                    dest="datafile", 
+parser.add_argument("-df", "--data-file",
+                    dest="datafile",
                     default=DATA_PATH,
-                    help="Name of the json file for training or testing",
-                    metavar="DIR")
+                    help="Name of the .json file used for training or testing",
+                    metavar="DATA_FILES")
+
+parser.add_argument("-emb", "--embedding",
+                    dest="embedding",
+                    default=True,
+                    choices=[True, False],
+                    required=False,
+                    help="Whether or not use pre-generated embedding model (only for GloVe and Bidaf-Like models)",
+                    metavar="EMBEDDING")
 
 parser.add_argument("-od", "--output-directory", 
                     dest="outputdir", 
                     #default=GLOVE_WEIGHTS_PATH,
                     help="Name of the directory where the output from training is saved (weights and history)",
-                    metavar="DIR")
+                    metavar="OUTPUT_DIRECTORY")
 
 parser.add_argument("-wf", "--weights_file",
                     dest="weights",
                     required=False,
                     help=".h5 file where the model weights are saved. Loaded to continue training or testing", 
-                    metavar="weightfile.h5")
+                    metavar="WEIGHTS_FILE")
 
 args = vars(parser.parse_args())
 
@@ -51,9 +59,9 @@ if __name__ == '__main__':
             break
         
     if model_to_run == "1":
-        model = glove_runner(args['datafile'], args['outputdir'], args['mode'])
+        model = glove_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
     elif model_to_run == "2":
         model = bert_runner(args['datafile'], args['outputdir'], args['mode'])
     elif model_to_run == "3":
-        model = bidaf_runner(args['datafile'], args['outputdir'], args['mode'])
+        model = bidaf_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
     

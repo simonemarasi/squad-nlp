@@ -23,7 +23,7 @@ class Attention(tf.keras.Model):
 
 class BilinearSimilarity(tf.keras.Model):
     """
-    This function calculates biliear term used for answer span prediction.
+    This function calculates bilinear term used for answer span prediction.
     Reference took from --> https://github.com/kellywzhang/reading-comprehension/blob/master/attention.py
     """    
     def __init__(self, hidden_size):

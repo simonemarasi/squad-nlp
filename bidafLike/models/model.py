@@ -6,11 +6,11 @@ from config import CONCAT_EMBEDDING_DIMENSION, EMBEDDING_DIMENSION
 
 def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model):
 
-    inputs_doc = Input(shape=(X_train_doc.shape[1]), name="X_train_doc")#(max_word_len,)
-    inputs_quest = Input(shape=(X_train_quest.shape[1]), name="X_train_quest")#(max_word_len,)
+    inputs_doc = Input(shape=(X_train_doc.shape[1]), name="X_train_doc")
+    inputs_quest = Input(shape=(X_train_quest.shape[1]), name="X_train_quest")
 
-    inputs_doc_char = Input(shape=(X_train_doc_char[0].shape), name="X_train_doc_char")#(max_word_len,)
-    inputs_quest_char = Input(shape=(X_train_quest_char[0].shape), name="X_train_quest_char")#(max_word_len,)
+    inputs_doc_char = Input(shape=(X_train_doc_char[0].shape), name="X_train_doc_char")
+    inputs_quest_char = Input(shape=(X_train_quest_char[0].shape), name="X_train_quest_char")
 
     embedding = Embedding(input_dim = embedding_matrix.shape[0], 
                         output_dim = EMBEDDING_DIMENSION, 

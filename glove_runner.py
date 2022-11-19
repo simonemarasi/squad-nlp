@@ -21,7 +21,7 @@ def get_model_input(prompt):
             break
     return value
 
-def glove_runner(filepath, outputdir=GLOVE_WEIGHTS_PATH, mode="test"):
+def glove_runner(filepath, outputdir=GLOVE_WEIGHTS_PATH, mode="test", load_embedding=True):
 
     print("######################")
     print("#### GLOVE RUNNER ####")
@@ -54,8 +54,7 @@ def glove_runner(filepath, outputdir=GLOVE_WEIGHTS_PATH, mode="test"):
     eval = preprocess_split(eval)
 
     print("Preparing embeddings")
-    embedding_model = load_embedding_model()
-    embedding_model = add_oov_words(train, embedding_model)
+    embedding_model = prepare_embedding_model(train, load_embedding)
 
     if mode == 'train':  
 
@@ -138,8 +137,7 @@ def glove_runner(filepath, outputdir=GLOVE_WEIGHTS_PATH, mode="test"):
             workers = WORKERS)
         print("### SAVING MODEL ###")
         model.save_weights(os.path.join(weights_path, 'weights.h5'))
-        print("Weights saved to: weights.h5 inside the model directory")
-        pickle.dump(model, open(os.path.join(weights_path, "model.pkl"), 'wb'))
+        print("Weights saved to: " + weights_path + "/weights.h5 inside the model directory")
 
     elif mode == 'test':
         

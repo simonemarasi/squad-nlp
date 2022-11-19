@@ -23,7 +23,7 @@ def get_model_input(prompt):
             break
     return value
 
-def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test"):
+def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test", load_embedding=True):
 
     print("###########################")
     print("#### BIDAF-LIKE RUNNER ####")
@@ -49,9 +49,8 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test"):
     train = preprocess_split(train)
     eval = preprocess_split(eval)
 
-    print("Preparing embedding")
-    embedding_model = load_embedding_model()
-    embedding_model = add_oov_words(train, embedding_model)
+    print("Preparing embeddings")
+    embedding_model = prepare_embedding_model(train, load_embedding)
     word2index, index2word = build_embedding_indices(embedding_model)
 
     print("Processing tokens to be fed into model")

@@ -4,7 +4,7 @@ from pickle import TRUE
 # ##########
 # FILE PATHS
 # ##########
-URL_EMBEDDING_MODEL = "https://drive.google.com/uc?export=download&id=1catlig-Ubt4ztedW_nag_y4FQGBiOebJ"
+EMBEDDING_PATH = osp.join("data", "embedding_model.pkl")
 DATA_PATH = osp.join("data", "training_set.json")
 GLOVE_WEIGHTS_PATH = osp.join("data", "glove", "weights")
 BERT_WEIGHTS_PATH = osp.join("data", "bert", "weights")

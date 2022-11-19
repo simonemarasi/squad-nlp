@@ -1,22 +1,20 @@
 import gensim.downloader as gloader
 import numpy as np
-from config import EMBEDDING_DIMENSION, URL_EMBEDDING_MODEL
+from config import EMBEDDING_DIMENSION, EMBEDDING_PATH
 from common.utils import list_to_dict
-import requests
 import pickle
 
-def load_embedding_model():
+def prepare_embedding_model(df, load_embedding):
     """
-    Loads a pre-trained GloVe embedding model via gensim library.
-
-    :param model_type: name of the word embedding model to load.
-    :param embedding_dimension: size of the embedding space to consider
-
-    :return
-        - pre-trained word embedding model (gensim KeyedVectors object)
+    Loads a pre-trained GloVe embedding model via gensim library or via pickle pre-generated file
     """
-    download_path = "glove-wiki-gigaword-{}".format(EMBEDDING_DIMENSION)
-    emb_model = gloader.load(download_path)
+    if load_embedding:
+        with open(EMBEDDING_PATH, 'rb') as f:
+            emb_model = pickle.load(f)
+    else:
+        download_path = "glove-wiki-gigaword-{}".format(EMBEDDING_DIMENSION)
+        emb_model = gloader.load(download_path)
+        emb_model = add_oov_words(df, emb_model)
     return emb_model
 
 def add_oov_words(df, embedding_model):
@@ -41,14 +39,6 @@ def get_oov_words_list(df, embedding_model):
     oov_words = oov_words_quest + oov_words_doc
 
     return list(set(oov_words))
-
-def load_embedding_pretrained():
-    """
-    Download pretrained embedding model
-    """
-    r = requests.get(URL_EMBEDDING_MODEL, allow_redirects=True)
-    with open(r.content, 'rb') as f:
-        return pickle.load(f)
 
 def build_embedding_indices(embedding_model):
     """

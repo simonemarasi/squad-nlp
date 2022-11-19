@@ -31,7 +31,6 @@ class ExactMatch(Callback):
                 count += 1
             f1_scores.append(compute_f1(true_text, predicted_text))
         acc = 100.0 * (count / len(self.y_eval[0]))
-        print(f"\nepoch={epoch+1}, exact match score={acc:.2f}%")   
         f1 = 100.0 * sum(f1_scores) / len(self.y_eval[0])
-        print(f"F1-score={f1:.2f}%")
+        print(f"\nEpoch={epoch+1}, Exact Match score={acc:.2f}%, F1-score={f1:.2f}%\n") 
         gc.collect()
