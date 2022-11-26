@@ -160,7 +160,7 @@ def bidaf_runner(filepath, outputdir=BIDAF_WEIGHTS_PATH, mode="test", load_embed
     quest_char_model.load_weights(CHAR_WEIGHTS_PATH)
     quest_char_model.trainable = False
 
-    bidafModel = model.buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model)    
+    bidafModel = model.buildBidafModel(embedding_matrix, doc_char_model, quest_char_model)    
     weights_path = osp.join(BIDAF_WEIGHTS_PATH)
 
     loss = SparseCategoricalCrossentropy(from_logits=False)

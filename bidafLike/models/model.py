@@ -2,20 +2,20 @@ from tensorflow.keras.layers import Input, Embedding, Attention, Multiply, Bidir
 from tensorflow.keras import Model
 from bidafLike.highway import Highway
 from common.layers import *
-from config import CONCAT_EMBEDDING_DIMENSION, EMBEDDING_DIMENSION
+from config import CONCAT_EMBEDDING_DIMENSION, EMBEDDING_DIMENSION, MAX_CONTEXT_LEN, MAX_QUEST_LEN, MAX_WORD_LEN
 
-def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model):
+def buildBidafModel(embedding_matrix, doc_char_model, quest_char_model):
 
-    inputs_doc = Input(shape=(X_train_doc.shape[1]), name="X_train_doc")
-    inputs_quest = Input(shape=(X_train_quest.shape[1]), name="X_train_quest")
+    inputs_doc = Input(shape=(MAX_CONTEXT_LEN), name="X_doc")
+    inputs_quest = Input(shape=(MAX_QUEST_LEN), name="X_quest")
 
-    inputs_doc_char = Input(shape=(X_train_doc_char[0].shape), name="X_train_doc_char")
-    inputs_quest_char = Input(shape=(X_train_quest_char[0].shape), name="X_train_quest_char")
+    inputs_doc_char = Input(shape=((MAX_CONTEXT_LEN, MAX_WORD_LEN)), name="X_doc_char")
+    inputs_quest_char = Input(shape=((MAX_QUEST_LEN, MAX_WORD_LEN)), name="X_quest_char")
 
     embedding = Embedding(input_dim = embedding_matrix.shape[0], 
                         output_dim = EMBEDDING_DIMENSION, 
                         weights = [embedding_matrix],
-                        input_length = X_train_doc.shape[1],#max_word_len 
+                        input_length = MAX_CONTEXT_LEN,
                         trainable = False,
                         name = "word_embedding")
 
@@ -35,7 +35,7 @@ def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_
     passage_embedding = Dropout(0.1)(passage_embedding)
     question_embedding = Dropout(0.1)(question_embedding)
 
-    for i in range(2):
+    for _ in range(2):
         highway_layer = Highway()
         question_layer = TimeDistributed(highway_layer)
         question_embedding = question_layer(question_embedding)
@@ -56,8 +56,9 @@ def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_
     passage_embedding = Concatenate()([passage_embedding, passage_embedding_att])
 
     hidden_layer = Bidirectional(LSTM(CONCAT_EMBEDDING_DIMENSION, return_sequences=True))
-
     passage_embedding = hidden_layer(passage_embedding)
+
+    hidden_layer = Bidirectional(LSTM(CONCAT_EMBEDDING_DIMENSION, return_sequences=True))
     passage_embedding = hidden_layer(passage_embedding)
 
     logits = BilinearSimilarity(CONCAT_EMBEDDING_DIMENSION)(quest_model, passage_embedding)
