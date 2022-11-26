@@ -19,6 +19,9 @@ def build_pos_indices():
     idx_to_pos = {i: pos for (i, pos) in enumerate(all_pos)}
     return pos_to_idx, idx_to_pos
 
+def count_pos_tags():
+    return len([PAD_POS] + list(load("help/tagsets/upenn_tagset.pickle").keys()))
+
 def build_pos_features(df, maxlen):
     """
     Return the list of the categorical representation of token POS tags padded
@@ -53,12 +56,18 @@ def build_exact_lemma_features(df, maxlen):
     """
     Computes and pad the exact lemma features for the questions and context columns of the dataframe given as argument
     """
-    lemma_array = [exact_lemma(quest_tokens, doc_tokens) for (quest_tokens, doc_tokens) in zip(df.proc_quest_tokens, df.proc_doc_tokens)]  
+    lemma_array = [exact_lemma(quest_tokens, doc_tokens) for (quest_tokens, doc_tokens) in zip(df["proc_quest_tokens"], df["proc_doc_tokens"])]  
     return pad_sequences(lemma_array, maxlen = maxlen, padding='post', truncating='post', value=np.array([0, 0]))
 
 def build_term_frequency_features(df, maxlen):
     """
     Computes the term frequency features for the context column of the dataframe given as argument
     """
-    tf = [term_frequency(tokens) for tokens in df.proc_doc_tokens]
+    tf = [term_frequency(tokens) for tokens in df["proc_doc_tokens"]]
     return pad_sequences(tf, maxlen = maxlen, padding='post', dtype='float64', truncating='post', value=0.0)
+
+def get_additional_features(df, maxlen):
+    doc_tags = build_pos_features(df, maxlen)[0]
+    exact_lemma = build_exact_lemma_features(df, maxlen)
+    tf = build_term_frequency_features(df, maxlen)
+    return doc_tags, exact_lemma, tf

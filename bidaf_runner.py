@@ -6,7 +6,6 @@ from config import *
 from glove.callback import *
 from glove.glove_embedding import *
 from glove.models import *
-from glove.layers import *
 from glove.generators import *
 import os
 from common import learningRateReducer

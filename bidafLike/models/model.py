@@ -1,7 +1,7 @@
-from tensorflow.keras.layers import Input, Embedding, Attention, Multiply, Bidirectional, Activation, Dropout, Dense, LSTM, Concatenate, TimeDistributed, Flatten
+from tensorflow.keras.layers import Input, Embedding, Attention, Multiply, Bidirectional, Dropout, Dense, LSTM, Concatenate, TimeDistributed
 from tensorflow.keras import Model
-from tensorflow.keras.activations import softmax
 from bidafLike.highway import Highway
+from common.layers import *
 from config import CONCAT_EMBEDDING_DIMENSION, EMBEDDING_DIMENSION
 
 def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_char, embedding_matrix, doc_char_model, quest_char_model):
@@ -47,34 +47,21 @@ def buildBidafModel(X_train_doc, X_train_quest, X_train_doc_char, X_train_quest_
     passage_embedding =  hidden_layer(passage_embedding)
     question_embedding = hidden_layer(question_embedding)
 
+    quest_model, _ = WeightedSumAttention()(question_embedding)
+
     passage_attention_scores = Attention()([passage_embedding, question_embedding])
-    question_attention_scores = Attention()([question_embedding, passage_embedding])
 
     passage_embedding_att = Multiply()([passage_embedding, passage_attention_scores])
-    question_embedding_att = Multiply()([question_embedding, question_attention_scores])
 
     passage_embedding = Concatenate()([passage_embedding, passage_embedding_att])
-    question_embedding = Concatenate()([question_embedding, question_embedding_att])
 
     hidden_layer = Bidirectional(LSTM(CONCAT_EMBEDDING_DIMENSION, return_sequences=True))
 
-    passage_embedding =  hidden_layer(passage_embedding)
-    question_embedding = hidden_layer(question_embedding)
+    passage_embedding = hidden_layer(passage_embedding)
+    passage_embedding = hidden_layer(passage_embedding)
 
-    hidden_layer = Bidirectional(LSTM(CONCAT_EMBEDDING_DIMENSION, return_sequences=True))
+    logits = BilinearSimilarity(CONCAT_EMBEDDING_DIMENSION)(quest_model, passage_embedding)
 
-    passage_embedding =  hidden_layer(passage_embedding)
-    question_embedding = hidden_layer(question_embedding)
-
-    passage = Concatenate(axis = 1)([passage_embedding, question_embedding])
-
-    start_logits = Dense(1, name="start_logit", use_bias=False)(passage)
-    start_logits = Flatten()(start_logits)
-
-    end_logits = Dense(1, name="end_logit", use_bias=False)(passage)
-    end_logits = Flatten()(end_logits)
-
-    start_probs = Activation(softmax)(start_logits)
-    end_probs = Activation(softmax)(end_logits)
+    start_probs, end_probs = Prediction()(logits)
 
     return Model(inputs=[inputs_quest ,inputs_doc, inputs_quest_char, inputs_doc_char], outputs=[start_probs, end_probs])

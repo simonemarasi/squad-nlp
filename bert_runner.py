@@ -34,33 +34,28 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
     print("Loading Data")
     data = load_json_file(filepath)
 
-    train = data[:VAL_SPLIT_INDEX]
-    eval = data[VAL_SPLIT_INDEX:]
-
-    tokenizer = load_bert_tokenizer()
+    print("Preparing dataset")
 
     def preprocess_split(split):
-        split = read_examples(split)
+        split = read_examples(split, mode=='train')
         split = shuffle(split)
         split["proc_doc_tokens"] = split["doc_tokens"].apply(preprocess_tokens)
         split["proc_quest_tokens"] = split["quest_tokens"].apply(preprocess_tokens)
         split["bert_tokenized_doc_tokens"] = split["doc_tokens"].apply(bert_tokenization, tokenizer=tokenizer)
         split["bert_tokenized_quest_tokens"] = split["quest_tokens"].apply(bert_tokenization, tokenizer=tokenizer)
         if (model_choice == "3"):
-            split["tf"] = [term_frequency(con_tokens) for con_tokens in split["proc_doc_tokens"]]
-            split["exact_lemma"] = [exact_lemma(ques_tokens, con_tokens) for (ques_tokens, con_tokens) in zip(split["proc_quest_tokens"], split["proc_doc_tokens"])]
-            split["pos_tag"] = [nltk.pos_tag(s) for s in split["proc_doc_tokens"]]
+            split["pos_tag"], split["exact_lemma"], split["tf"] = get_additional_features(split, BERT_MAX_LEN)
         return split
 
-    def get_additional_features(split):
-        doc_tags = build_pos_features(split, BERT_MAX_LEN)[0]
-        exact_lemma = build_exact_lemma_features(split, BERT_MAX_LEN)
-        tf = build_term_frequency_features(split, BERT_MAX_LEN)
-        return doc_tags, exact_lemma, tf
+    tokenizer = load_bert_tokenizer()
 
-    print("Preparing dataset")
-    train = preprocess_split(train)
-    eval = preprocess_split(eval)
+    if mode == 'train':
+        train = data[:VAL_SPLIT_INDEX]
+        eval = data[VAL_SPLIT_INDEX:]
+        train = preprocess_split(train)
+        eval = preprocess_split(eval)
+    elif mode == 'test':
+        test = preprocess_split(data)
 
     if (model_choice == "3"):
         print("Preparing additional features")

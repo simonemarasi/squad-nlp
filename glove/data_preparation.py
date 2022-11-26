@@ -1,6 +1,5 @@
 from config import MAX_CONTEXT_LEN, MAX_QUEST_LEN, PAD_TOKEN
 from tensorflow.keras.preprocessing.sequence import pad_sequences  
-import numpy as np
 
 def remove_not_valid_answer(df):
     """

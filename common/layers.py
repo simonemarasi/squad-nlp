@@ -1,12 +1,12 @@
 import tensorflow as tf
 from config import MAX_CONTEXT_LEN
 
-class Attention(tf.keras.Model):
+class WeightedSumAttention(tf.keras.Model):
     """
     This class implements a weighted sum attention.
     """
     def __init__(self, units = 1):   
-        super(Attention, self).__init__()
+        super(WeightedSumAttention, self).__init__()
         self.W = tf.keras.layers.Dense(units)
         
     def call(self, values):

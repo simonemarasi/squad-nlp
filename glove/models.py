@@ -4,7 +4,7 @@ from tensorflow.keras.layers import Dense, Bidirectional, LSTM, Input, Concatena
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.activations import softmax
-from glove.layers import *
+from common.layers import *
 
 def baseline_model(learning_rate, embedding_model):
 
@@ -45,7 +45,7 @@ def attention_model(learning_rate, embedding_model):
     quest_model = embedding(input_quest)
     quest_model = Bidirectional(LSTM(units=LSTM_UNITS, return_sequences=True))(quest_model)
 
-    quest_model, _ = Attention()(quest_model)
+    quest_model, _ = WeightedSumAttention()(quest_model)
 
     input_context = Input(shape=(MAX_CONTEXT_LEN,))
     context_model = embedding(input_context)
@@ -110,7 +110,7 @@ def attention_with_features(learning_rate, embedding_model, pos_number):
     quest_model = embedding(input_quest)
     quest_model = Bidirectional(LSTM(units=LSTM_UNITS, return_sequences=True))(quest_model)
 
-    quest_model, _ = Attention()(quest_model)
+    quest_model, _ = WeightedSumAttention()(quest_model)
 
     input_context = Input(shape=(MAX_CONTEXT_LEN,))
     input_pos = Input(shape=(MAX_CONTEXT_LEN, pos_number,))
