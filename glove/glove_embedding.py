@@ -17,6 +17,17 @@ def prepare_embedding_model(df, load_embedding):
         emb_model = add_oov_words(df, emb_model)
     return emb_model
 
+def build_char_embedding_matrix(embedding_model, index2char, char2index):
+    char_embedding_matrix = np.zeros((len(index2char), EMBEDDING_DIMENSION))
+    for index in index2char:
+        if index == char2index["<PAD>"]:
+            np.zeros(shape=(1, EMBEDDING_DIMENSION))
+        elif index == char2index["<UNK>"]:
+            np.random.uniform(low=-4.0, high=4.0, size=(1, EMBEDDING_DIMENSION))
+        else:
+            char_embedding_matrix[index] = embedding_model[index2char[index]]
+    return char_embedding_matrix
+
 def add_oov_words(df, embedding_model):
     """
     Adds out-of-vocabulary words to embedding model

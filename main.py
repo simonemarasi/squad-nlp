@@ -59,9 +59,9 @@ if __name__ == '__main__':
             break
         
     if model_to_run == "1":
-        model = glove_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
+        glove_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
     elif model_to_run == "2":
-        model = bert_runner(args['datafile'], args['outputdir'], args['mode'])
+        bert_runner(args['datafile'], args['outputdir'], args['mode'])
     elif model_to_run == "3":
-        model = bidaf_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
+        bidaf_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
     

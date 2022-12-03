@@ -48,7 +48,6 @@ def term_frequency(tokens):
     Returns term frequency of every word
     """
     l = len(tokens)
-    tf = [tokens.count(ew)/l for ew in tokens]
     tf = np.array([tokens.count(ew)/l for ew in tokens])
     return np.reshape(tf, (l,-1))
 
