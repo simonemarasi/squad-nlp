@@ -1,14 +1,11 @@
 from argparse import ArgumentParser
-from config import *
-from glove_runner import glove_runner
-from bert_runner import bert_runner
-from bidaf_runner import bidaf_runner
+from config import DATA_PATH
 
 parser = ArgumentParser()
 parser.add_argument("-mode",
                     dest="mode",
                     required=True,
-                    choices=['train', 'test'],
+                    choices=['train', 'test', 'evaluate'],
                     help="Select the mode to run the model in",
                     metavar="MODE")    
 
@@ -38,6 +35,12 @@ parser.add_argument("-wf", "--weights_file",
                     help=".h5 file where the model weights are saved. Loaded to continue training or testing", 
                     metavar="WEIGHTS_FILE")
 
+parser.add_argument("-pred", "--prediction_file",
+                    dest="prediction_file",
+                    required=False,
+                    help=".txt file generated after the testing stage", 
+                    metavar="WEIGHTS_FILE")
+
 args = vars(parser.parse_args())
 
 if __name__ == '__main__':
@@ -45,6 +48,13 @@ if __name__ == '__main__':
     print("######################")
     print("#### SQuAd RUNNER ####")
     print("######################")
+
+    if (args['mode'] == 'evaluate'):
+        from evaluate_simple import evaluate_predictions
+        evaluate_predictions(args["datafile"], args["prediction_file"])
+        input("Press any key to terminate")
+        exit()
+
     print("\nModels available:\n")
     print("1) GloVe")
     print("2) BERT")
@@ -59,9 +69,12 @@ if __name__ == '__main__':
             break
         
     if model_to_run == "1":
+        from glove_runner import glove_runner
         glove_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
     elif model_to_run == "2":
+        from bert_runner import bert_runner
         bert_runner(args['datafile'], args['outputdir'], args['mode'])
     elif model_to_run == "3":
+        from bidaf_runner import bidaf_runner
         bidaf_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
     

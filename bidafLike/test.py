@@ -9,6 +9,7 @@ from glove.generators import *
 from bidafLike.models import charCnnModel
 from bidafLike.models import model
 from config import *
+from compute_answers import compute_predictions
 
 def test_bidaf_like(filepath, outputdir):
 

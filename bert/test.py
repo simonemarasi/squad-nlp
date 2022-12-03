@@ -7,6 +7,7 @@ from bert.callback import *
 from bert.models import *
 from bert.generators import *
 from sklearn.utils import shuffle
+from compute_answers import compute_bert_predictions
 
 def test_bert(filepath, model_choice, outputdir):
     print("Loading Data")
