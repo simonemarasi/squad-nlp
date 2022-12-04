@@ -51,6 +51,14 @@ def test_glove(filepath, model_choice, outputdir):
     X_test_doc_tokens = test["doc_tokens"].to_list()
     X_test = [X_test_quest, X_test_doc]
 
+    if model_choice == "3" | model_choice == "4":
+        # Computes additional features (POS, Exact Lemma, Term Frequency)
+        print("Building additional features (it may take a while...)")
+        X_test_doc_tags, pos_number = build_pos_features(test, MAX_CONTEXT_LEN)
+        X_test_exact_lemma = build_exact_lemma_features(test, MAX_CONTEXT_LEN)
+        X_test_tf = build_term_frequency_features(test, MAX_CONTEXT_LEN)
+        X_test.extend([X_test_doc_tags, X_test_exact_lemma, X_test_tf])
+
     print("\nLoading model weights:\n\n")
     MODEL_PATH = osp.join(weights_path, "weights.h5")
     model.load_weights(MODEL_PATH)

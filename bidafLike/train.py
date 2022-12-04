@@ -8,8 +8,7 @@ from glove.models import *
 from glove.generators import *
 import os
 from common import learningRateReducer
-from bidafLike.models import charCnnModel
-from bidafLike.models import model
+from bidafLike.models import charCnnModel, model
 from config import *
 
 def train_bidaf_like(filepath, load_embedding, outputdir):
