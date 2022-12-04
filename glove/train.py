@@ -50,7 +50,7 @@ def train_glove(filepath, load_embedding, model_choice):
     y_train = [y_train_start, y_train_end]
     y_val = [y_val_start, y_val_end]
 
-    if model_choice == "3" | model_choice == "4":
+    if model_choice == "3" or model_choice == "4":
         # Computes additional features (POS, Exact Lemma, Term Frequency)
         print("Building additional features (it may take a while...)")
         X_train_doc_tags, pos_number = build_pos_features(train, MAX_CONTEXT_LEN)
