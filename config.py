@@ -57,5 +57,5 @@ FULLY_CONNECTED_LAYERS = [1024, 1024]
 CONCAT_EMBEDDING_DIMENSION = 600
 MAX_WORD_LEN = 15
 NUM_HIGHWAY = 2
-CHAR_WEIGHTS_PATH = osp.join("data", "bidaf", "weights", "CNN_150_FineTunedEmbedding.h5")
+CHAR_WEIGHTS_PATH = osp.join("data", "bidaf", "weights", "CNN_150_FineTunedEmbedding")
 LR_REDUCER_RATE = 0.8

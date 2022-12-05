@@ -98,7 +98,7 @@ def test_bidaf_like(filepath, outputdir):
     weights_path = osp.join(BIDAF_WEIGHTS_PATH)
 
     print("\nLoading model weights:\n\n")
-    MODEL_PATH = osp.join(weights_path, "weights.h5")
+    MODEL_PATH = osp.join(weights_path, "weights")
     bidafModel.load_weights(MODEL_PATH)
     compute_predictions(model, X_test, X_test_ids, X_test_doc_tokens, outputdir)
 
