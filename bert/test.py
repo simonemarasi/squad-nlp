@@ -23,18 +23,21 @@ def test_bert(filepath, model_choice, outputdir):
         split["bert_tokenized_doc_tokens"] = split["doc_tokens"].apply(bert_tokenization, tokenizer=tokenizer)
         split["bert_tokenized_quest_tokens"] = split["quest_tokens"].apply(bert_tokenization, tokenizer=tokenizer)
         if (model_choice == "3"):
+            print("Computing additional features (it may take a while)...")
             split["pos_tag"], split["exact_lemma"], split["tf"] = get_additional_features(split, BERT_MAX_LEN)
+            print("Additional features computed successfully")
         return split
 
     tokenizer = load_bert_tokenizer()
 
     test = preprocess_split(data)
     if (model_choice == "3"):
-        print("Preparing additional features")
+        print("Unpacking dataframe")
         X_test_input_ids, X_test_token_type_ids, X_test_attention_mask, X_test_pos_tags, X_test_exact_lemma, X_test_tf, _, _, test_doc_tokens, _ = unpack_dataframe(test)
     else:
         X_test_input_ids, X_test_token_type_ids, X_test_attention_mask, _, _, test_doc_tokens, _ = unpack_dataframe(test, with_features=False)
 
+    print("Compute lookups")
     test_lookup_list = compute_lookups(test)
     X_test_qas_id = test["qas_id"].values.tolist()
 

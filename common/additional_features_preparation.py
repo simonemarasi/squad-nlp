@@ -67,6 +67,6 @@ def build_term_frequency_features(df, maxlen):
 
 def get_additional_features(df, maxlen):
     doc_tags = build_pos_features(df, maxlen)[0]
-    exact_lemma = build_exact_lemma_features(df, maxlen)
+    exact_lemmas = build_exact_lemma_features(df, maxlen)
     tf = build_term_frequency_features(df, maxlen)
-    return doc_tags, exact_lemma, tf
+    return doc_tags.tolist(), exact_lemmas.tolist(), tf.tolist()

@@ -1,6 +1,4 @@
 from config import BERT_WEIGHTS_PATH 
-from bert.train import train_bert
-from bert.test import test_bert
 
 def get_model_input(prompt):
     while True:
@@ -25,6 +23,8 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
     model_choice = get_model_input("\nPlease type the model number to run with the current configuration: ")
 
     if mode == 'train':
+        from bert.train import train_bert
         train_bert(filepath, model_choice, outputdir)
     elif mode == 'test':
+        from bert.test import test_bert
         test_bert(filepath, model_choice, outputdir)
