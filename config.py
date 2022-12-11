@@ -1,14 +1,12 @@
 import os.path as osp
-from pickle import TRUE
 
 # ##########
 # FILE PATHS
 # ##########
 EMBEDDING_PATH = osp.join("data", "embedding_model.pkl")
 DATA_PATH = osp.join("data", "training_set.json")
-GLOVE_WEIGHTS_PATH = osp.join("data", "glove", "weights")
+GLOVE_WEIGHTS_PATH = osp.join("data", "models", "weights")
 BERT_WEIGHTS_PATH = osp.join("data", "bert", "weights")
-BIDAF_WEIGHTS_PATH = osp.join("data", "bidaf", "weights")
 
 # #########
 # CONSTANTS
@@ -17,6 +15,7 @@ ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[
 PUNCTUATION = '!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~–—'
 EMPTY_TOKEN = '<EMPTY>'
 PAD_TOKEN = '<PAD>'
+UNK_TOKEN = '<UNK>'
 PAD_POS = 'PAD'
 VAL_SPLIT_INDEX = 350
 
@@ -44,18 +43,20 @@ LEARNING_RATE = 5e-5
 EPOCHS = 25
 BATCH_SIZE = 64
 LSTM_UNITS = 250
+GLOVE_LSTM_UNITS = 300
 
 # ###################
 # BIDAF CONFIGURATION
 # ###################
 
-CONV_LAYERS = [[150, 10],
-               [150, 7],
-               [150, 5],
-               [150, 3]]
+CONV_LAYERS = [[100, 10],
+               [100, 7],
+               [100, 5],
+               [100, 3]]
 FULLY_CONNECTED_LAYERS = [1024, 1024]
 CONCAT_EMBEDDING_DIMENSION = 600
 MAX_WORD_LEN = 15
 NUM_HIGHWAY = 2
-CHAR_WEIGHTS_PATH = osp.join("data", "bidaf", "weights", "CNN_150_FineTunedEmbedding")
+CHAR_WEIGHTS_PATH = osp.join("data", "models", "weights", "CNN_100_FineTunedEmbedding")
+CHAR_PRETRAIN_PATH = osp.join("data", "ag-news")
 LR_REDUCER_RATE = 0.8

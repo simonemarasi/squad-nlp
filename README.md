@@ -5,9 +5,14 @@
 This repository contains several implementation of model used to perform a question-answering task over the SQuAD Dataset. In particular it has been tried several models and variants of them. For simplicity it is possible to divide them in three macrocategories:
 - **GloVe** based
 - **BERT** based
-- **BIDAF** based
 
-Moreover for GloVe and BERT models the variants implemented have been taken into account additional features, deep recurrent layers and various attention implementations.
+Moreover the variants implemented have been taken into account additional features, char embeddings, deep recurrent layers and attention implementations.
+
+#### GloVe
+TODO
+
+#### BERT
+TODO
 
 ### Run scripts
 You have to clone the repository into your PC through the usual git command:

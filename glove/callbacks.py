@@ -30,3 +30,14 @@ class ExactMatch(Callback):
         f1 = 100.0 * sum(f1_scores) / len(self.y_eval[0])
         print(f"\nEpoch={epoch+1}, Exact Match score={acc:.2f}%, F1-score={f1:.2f}%\n")
         gc.collect()
+
+class LearningRateReducer(Callback):
+
+  def __init__(self, downscale_factor):
+    self.downscale_factor = downscale_factor
+
+  def on_epoch_end(self, epoch):
+    old_lr = self.model.optimizer.lr.read_value()
+    new_lr = old_lr * self.downscale_factor
+    print("\nEpoch: {}. Reducing Learning Rate from {} to {}\n".format(epoch, old_lr, new_lr))
+    self.model.optimizer.lr.assign(new_lr)
