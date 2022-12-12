@@ -4,7 +4,7 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.activations import softmax
 from tensorflow.keras.layers import Embedding, Add, Attention, Multiply, Dropout, TimeDistributed, Dense, Bidirectional, LSTM, Input, Concatenate, Flatten, Activation
 from tensorflow.keras import Model
-from highway import Highway
+from glove.model.highway import Highway
 from tensorflow import reduce_sum
 
 def build_model(embedding_matrix, learning_rate, num_highway_layers=2, features=False, attention=False, char_embedding=False, doc_char_model=None, quest_char_model=None):
