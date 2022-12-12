@@ -36,7 +36,8 @@ def build_model(embedding_matrix, learning_rate, num_highway_layers=2, features=
         passage_embedding_char = doc_char_model(inputs_doc_char)
         question_embedding_char = quest_char_model(inputs_quest_char)
         passage_embedding = Concatenate()([passage_embedding, passage_embedding_char])
-        question_embedding = Concatenate()([question_embedding, question_embedding_char])    
+        question_embedding = Concatenate()([question_embedding, question_embedding_char])
+        inputs.extend([inputs_quest_char, inputs_doc_char]) 
 
     if features:
         passage_embedding_features_att = Multiply()([passage_embedding, feature_attention_score])
