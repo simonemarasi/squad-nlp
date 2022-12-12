@@ -39,10 +39,8 @@ def train_glove(filepath, load_embedding, model_choice):
         embedding_matrix[word2index[word]] = embedding_model[word]
 
     print("Processing tokens to be fed into model")
-    X_train_quest, X_train_doc = embed_and_pad_sequences(
-        train, word2index, embedding_model)
-    X_val_quest, X_val_doc = embed_and_pad_sequences(
-        eval, word2index, embedding_model)
+    X_train_quest, X_train_doc = embed_and_pad_sequences(train, word2index, embedding_model)
+    X_val_quest, X_val_doc = embed_and_pad_sequences(eval, word2index, embedding_model)
 
     y_train_start = train["start_position"].to_numpy()
     y_train_end = train["end_position"].to_numpy()

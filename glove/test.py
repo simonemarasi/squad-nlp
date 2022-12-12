@@ -32,6 +32,18 @@ def test_glove(filepath, model_choice, outputdir):
     for word in word2index:
         embedding_matrix[word2index[word]] = embedding_model[word]
 
+    X_test_quest, X_test_doc = embed_and_pad_sequences(test, word2index, embedding_model)
+    X_test_ids = test["qas_id"].values
+    X_test_doc_tokens = test["doc_tokens"].to_list()
+    X_test = [X_test_quest, X_test_doc]
+
+    if model_choice == "3":
+        # Computes additional features (POS, Exact Lemma, Term Frequency)
+        print("Building additional features (it may take a while...)")
+        X_test_exact_lemma = build_exact_lemma_features(test, MAX_CONTEXT_LEN)
+        X_test_tf = build_term_frequency_features(test, MAX_CONTEXT_LEN)
+        X_test.extend([X_test_exact_lemma, X_test_tf])
+
     if model_choice == "4":
         alphabet = list(ALPHABET)
         alphabet.extend([PAD_TOKEN, UNK_TOKEN])
@@ -86,17 +98,7 @@ def test_glove(filepath, model_choice, outputdir):
         weights_path = osp.join(GLOVE_WEIGHTS_PATH, "char")
     model.summary()
 
-    X_test_quest, X_test_doc = embed_and_pad_sequences(test, word2index, embedding_model)
-    X_test_ids = test["qas_id"].values
-    X_test_doc_tokens = test["doc_tokens"].to_list()
-    X_test = [X_test_quest, X_test_doc]
-
-    if model_choice == "3":
-        # Computes additional features (POS, Exact Lemma, Term Frequency)
-        print("Building additional features (it may take a while...)")
-        X_test_exact_lemma = build_exact_lemma_features(test, MAX_CONTEXT_LEN)
-        X_test_tf = build_term_frequency_features(test, MAX_CONTEXT_LEN)
-        X_test.extend([X_test_exact_lemma, X_test_tf])
+    
 
     print("\nLoading model weights:\n\n")
     MODEL_PATH = osp.join(weights_path, "weights.h5")
