@@ -1,6 +1,6 @@
 from tensorflow.keras.models import Model
 from config import MAX_WORD_LEN
-from tensorflow.keras.layers import Input, Dense, Concatenate, Flatten, Convolution1D, GlobalMaxPooling1D, Embedding, AlphaDropout, TimeDistributed
+from tensorflow.keras.layers import Input, Dense, Average, Flatten, Convolution1D, GlobalMaxPooling1D, Embedding, AlphaDropout, TimeDistributed
 
 
 def buildCharCnnModel(input_shape, embedding_size, char_embedding_matrix, conv_layers, fully_connected_layers, dropout_p=0.1,
@@ -27,7 +27,7 @@ def buildCharCnnModel(input_shape, embedding_size, char_embedding_matrix, conv_l
         pool = TimeDistributed(GlobalMaxPooling1D(
             name='MaxPoolingOverTime_{}_{}'.format(num_filters, filter_width)))(conv)
         convolution_output.append(pool)
-    x = Concatenate()(convolution_output)
+    x = Average()(convolution_output)
 
     if not include_top:
         model = Model(inputs=inputs, outputs=x)
