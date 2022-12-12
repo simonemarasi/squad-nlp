@@ -60,9 +60,9 @@ def build_model(embedding_matrix, learning_rate, num_highway_layers=2, features=
     lstm_units = GLOVE_LSTM_UNITS
     if attention:
         passage_embedding_att = Attention()([passage_embedding, question_embedding])
-        passage_embedding = Concatenate()([passage_embedding, passage_embedding_att])
         question_embedding_att = Attention()([question_embedding, passage_embedding])
         question_embedding = Concatenate()([question_embedding, question_embedding_att])
+        passage_embedding = Concatenate()([passage_embedding, passage_embedding_att])
         lstm_units = GLOVE_LSTM_UNITS * 2
 
     hidden_layer = Bidirectional(LSTM(lstm_units, return_sequences=True))
