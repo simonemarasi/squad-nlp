@@ -1,6 +1,6 @@
 import gensim.downloader as gloader
 import numpy as np
-from config import EMBEDDING_DIMENSION, EMBEDDING_PATH
+from config import EMBEDDING_DIMENSION, EMBEDDING_PATH, PAD_TOKEN, UNK_TOKEN
 from common.utils import list_to_dict
 import pickle
 

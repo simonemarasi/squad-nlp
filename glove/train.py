@@ -9,7 +9,7 @@ from glove.model.models import *
 from glove.generators import *
 import os
 from tensorflow.keras.callbacks import EarlyStopping
-from model import charCnnModel
+from glove.model import charCnnModel
 
 def train_glove(filepath, load_embedding, model_choice):
     print("Loading Data")

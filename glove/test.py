@@ -8,7 +8,7 @@ from glove.glove_embedding import *
 from glove.model.models import *
 from glove.generators import *
 from compute_answers import compute_predictions
-from model import charCnnModel
+from glove.model import charCnnModel
 
 def test_glove(filepath, model_choice, outputdir):
 
