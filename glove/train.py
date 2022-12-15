@@ -151,7 +151,7 @@ def train_glove(filepath, load_embedding, model_choice):
         model = build_model(embedding_matrix, LEARNING_RATE, features=True)
         weights_path = osp.join(GLOVE_WEIGHTS_PATH, "features")
     elif model_choice == "4":
-        model = build_model(embedding_matrix, LEARNING_RATE, char_embedding=True, doc_char_model=doc_char_model, quest_char_model=quest_char_model)
+        model = build_model(embedding_matrix, LEARNING_RATE, char_embedding=True, attention=True, doc_char_model=doc_char_model, quest_char_model=quest_char_model)
         weights_path = osp.join(GLOVE_WEIGHTS_PATH, "char")
     model.summary()
 
