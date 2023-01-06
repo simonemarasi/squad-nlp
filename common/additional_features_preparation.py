@@ -26,11 +26,8 @@ def build_pos_features(df, maxlen):
     """
     Return the list of the categorical representation of token POS tags padded
     """
-    pos_to_idx, idx_to_pos = build_pos_indices()
-    doc_tags = [nltk.pos_tag(s) for s in df.proc_doc_tokens]
-    doc_tags = [[pos_to_idx[el[1]] for el in sequence] for sequence in doc_tags]
-    doc_tags = pad_sequences(maxlen = maxlen, sequences = doc_tags, padding = "post", truncating = "post", value=0)
-    doc_tags = to_categorical(doc_tags, num_classes=len(idx_to_pos.keys()))
+    _, idx_to_pos = build_pos_indices()
+    doc_tags = [nltk.pos_tag(s) for s in df["proc_doc_tokens"]]
     return doc_tags, len(idx_to_pos.keys())
 
 def exact_lemma(quest_tokens, doc_tokens):
