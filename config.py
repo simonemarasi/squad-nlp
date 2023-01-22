@@ -3,10 +3,10 @@ import os.path as osp
 # ##########
 # FILE PATHS
 # ##########
-EMBEDDING_PATH = osp.join("data", "embedding_model.pkl")
+EMBEDDING_PATH = osp.join("data", "models", "glove", "embedding_model.pkl")
 DATA_PATH = osp.join("data", "training_set.json")
-GLOVE_WEIGHTS_PATH = osp.join("data", "models", "weights")
-BERT_WEIGHTS_PATH = osp.join("data", "bert", "weights")
+GLOVE_WEIGHTS_PATH = osp.join("data", "models", "glove", "weights")
+BERT_WEIGHTS_PATH = osp.join("data", "models", "bert", "weights")
 
 # #########
 # CONSTANTS
@@ -22,7 +22,6 @@ VAL_SPLIT_INDEX = 350
 # ###################
 # GLOVE CONFIGURATION
 # ###################
-EMBEDDING_MODEL_TYPE = 'glove'
 EMBEDDING_DIMENSION = 300
 MAX_CONTEXT_LEN = 400
 MAX_QUEST_LEN = 40
@@ -57,6 +56,6 @@ FULLY_CONNECTED_LAYERS = [1024, 1024]
 CONCAT_EMBEDDING_DIMENSION = 600
 MAX_WORD_LEN = 15
 NUM_HIGHWAY = 2
-CHAR_WEIGHTS_PATH = osp.join("data", "models", "weights", "CNN_100_FineTunedEmbedding")
-CHAR_PRETRAIN_PATH = osp.join("data", "ag-news")
+CHAR_WEIGHTS_PATH = osp.join("data", "models", "glove", "weights", "char", "CNN_100_FineTunedEmbedding")
+CHAR_PRETRAIN_PATH = osp.join("data", "ag_news")
 LR_REDUCER_RATE = 0.8
