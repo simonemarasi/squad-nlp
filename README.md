@@ -5,7 +5,7 @@
 This repository contains the implementation of a form of extractive QA applied to the Stanford Question Answering Dataset (SQuAD). Given a question and a passage containing the answer, the task is to predict the answer text span in the passage. In particular it has been tried several models
 - a very simple Recurrent Neural Network (RNN) using the GloVe embedding;
 - an attention based model using both GloVe and a pretrained Character Level embedding, 
-- an high end reference model using BERT
+- a high end reference model using BERT
 
 
 ### Run script
@@ -13,9 +13,9 @@ First of all, you have to clone the repository into your PC through the usual gi
 
 `https://github.com/simonesimo97/squad-nlp.git`
 
-To execute the script in a test fashion with pretrained word embeddings and model weights [download the .zip file](http) and extract it into the `data/models` folder. After doing that your root folder structure should be like the following:
+To execute the script in a test fashion with pretrained word embeddings and model weights [download the .zip file](https://www.4sync.com/web/directDownload/vq1HmCVf/GELocHMl.3efe1a6ed6f7215faddb42bf203a0904) and extract it into the `data/models` folder. After doing that your root folder structure should be like the following:
 
-```
+<pre>
 bert
 └── ...
 common
@@ -25,7 +25,7 @@ data
 ├── ag-news
 │   ├── train.csv
 │   └── test.csv
-└── models
+<b>└── models
     ├── bert
     │   └── weights
     │       ├── baseline
@@ -50,10 +50,10 @@ data
                 ├── weights.data-00000-of-00001
                 ├── weights.index
                 ├── CNN_100_FineTunedEmbedding.data-00000-of-00001
-                └── CNN_100_FineTunedEmbedding.index
+                └── CNN_100_FineTunedEmbedding.index</b>
 glove
 └── ...
-```
+</pre>
 
 Then from your terminal you can launch the `main.py` file and choose the model you want to run and its variant. You can also specify other parameters such as the mode in which run (train, test or evaluate), the custom weights directory where to pick weights file (if one), output directory for predictions (if test mode), if to use the pretrained GloVe embeddings or build it from scratch and so on. You can see all available options running the help command:
 
@@ -81,10 +81,8 @@ You can relaunch the script in the **evaluate mode** specifying the paths of the
 
 ### Resources
 
-You can download weights file even separately but be sure to respect the folder structure as depicted before, possibly creating by yourself missing folders.
+If you want to train the models autonomously, you can download the Char RNN weights file or the GloVe embedding model files separately but be sure to respect the folder structure as depicted before, possibly creating by yourself missing folders.
 
-Only models weights files: [Download]()
-
-Pre-trained Char RNN weights file: [Download]()
+Pre-trained Char RNN weights file: [Download](https://www.4sync.com/web/directDownload/Kun91r2F/GELocHMl.ba205b4c346baa151eb66c73fc4f7853)
 
 GloVe embedding model: [Download](https://www.4sync.com/web/directDownload/1fLGKUVR/GELocHMl.14ab03219e9ec9989ecb72c5a99ed420)
