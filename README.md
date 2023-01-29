@@ -79,6 +79,8 @@ You can relaunch the script in the **evaluate mode** specifying the paths of the
 
 ### Examples
 
+![Qualitative error analysis of some question-answer couples](ErrorAnalysisResults.jpg)
+
 ### Resources
 
 If you want to train the models autonomously, you can download the Char RNN weights file or the GloVe embedding model files separately but be sure to respect the folder structure as depicted before, possibly creating by yourself missing folders.
