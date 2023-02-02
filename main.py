@@ -6,6 +6,7 @@ parser.add_argument("-mode",
                     dest="mode",
                     required=True,
                     choices=['train', 'test', 'evaluate'],
+                    default='test',
                     help="Select the mode to run the model in",
                     metavar="MODE")    
 
@@ -20,30 +21,29 @@ parser.add_argument("-emb", "--embedding",
                     default=True,
                     choices=[True, False],
                     required=False,
-                    help="Whether or not use pre-generated embedding model (only for GloVe and Bidaf-Like models)",
+                    help="Whether or not use pre-generated embedding model (only for GloVe models)",
                     metavar="EMBEDDING")
 
-parser.add_argument("-od", "--output-directory", 
-                    dest="outputdir", 
-                    #default=GLOVE_WEIGHTS_PATH,
-                    help="Name of the directory where the output from training is saved (weights and history)",
-                    metavar="OUTPUT_DIRECTORY")
+parser.add_argument("-wd", "--weights-directory", 
+                    dest="weightsdir",
+                    help="Name of the directory where save or load the weights of the model (depends on the mode used)",
+                    metavar="WEIGHTS_DIRECTORY")
 
-parser.add_argument("-wf", "--weights_file",
-                    dest="weights",
-                    required=False,
-                    help=".h5 file where the model weights are saved. Loaded to continue training or testing", 
-                    metavar="WEIGHTS_FILE")
+parser.add_argument("-od", "--output-directory", 
+                    dest="outputdir",
+                    help="Name of the directory where to output the prediction file (test mode only)",
+                    metavar="OUTPUT_DIRECTORY")
 
 parser.add_argument("-pred", "--prediction_file",
                     dest="prediction_file",
                     required=False,
                     help=".txt file generated after the testing stage", 
-                    metavar="WEIGHTS_FILE")
+                    metavar="PREDICTION_FILE")
 
-args = vars(parser.parse_args())
 
 if __name__ == '__main__':
+
+    args = vars(parser.parse_args())
 
     print("######################")
     print("#### SQuAd RUNNER ####")
@@ -58,11 +58,10 @@ if __name__ == '__main__':
     print("\nModels available:\n")
     print("1) GloVe")
     print("2) BERT")
-    print("3) Bidaf")
 
     while True:
         model_to_run = input("\nChoose the model you want to run: ")
-        if model_to_run not in ["1", "2", "3"]:
+        if model_to_run not in ["1", "2"]:
             print("Error, please make your choice between the ones allowed")
             continue
         else:
@@ -70,11 +69,7 @@ if __name__ == '__main__':
         
     if model_to_run == "1":
         from glove_runner import glove_runner
-        glove_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
+        glove_runner(args['datafile'], args['outputdir'], args['weightsdir'], args['mode'], args['embedding'])
     elif model_to_run == "2":
         from bert_runner import bert_runner
-        bert_runner(args['datafile'], args['outputdir'], args['mode'])
-    elif model_to_run == "3":
-        from bidaf_runner import bidaf_runner
-        bidaf_runner(args['datafile'], args['outputdir'], args['mode'], args['embedding'])
-    
+        bert_runner(args['datafile'], args['outputdir'], args['weightsdir'], args['mode'])

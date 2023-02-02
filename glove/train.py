@@ -8,29 +8,31 @@ from glove.glove_embedding import *
 from glove.model.models import *
 from glove.generators import *
 import os
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from glove.model import charCnnModel
 
-def train_glove(filepath, load_embedding, model_choice):
+def train_glove(filepath, load_embedding, model_choice, weightsdir=GLOVE_WEIGHTS_PATH):
     print("Loading Data")
     data = load_json_file(filepath)
-
     print("Preparing dataset")
 
     def preprocess_split(split):
+        """
+        It organizes samples in a Pandas dataframe and performs some preprocessing
+        """
         split = read_examples(split, True)
         split.sample(frac=1).reset_index(drop=True)
         split["proc_doc_tokens"] = split["doc_tokens"].apply(preprocess_tokens)
-        split["proc_quest_tokens"] = split["quest_tokens"].apply(
-            preprocess_tokens)
+        split["proc_quest_tokens"] = split["quest_tokens"].apply(preprocess_tokens)
         split = remove_outliers(split)
         split = remove_not_valid_answer(split)
         return split
 
     train = data[:VAL_SPLIT_INDEX]
-    eval = data[VAL_SPLIT_INDEX:]
     train = preprocess_split(train)
+    eval = data[VAL_SPLIT_INDEX:]
     eval = preprocess_split(eval)
+
     print("Preparing embeddings")
     embedding_model = prepare_embedding_model(train, load_embedding)
     word2index, _ = build_embedding_indices(embedding_model)
@@ -42,6 +44,7 @@ def train_glove(filepath, load_embedding, model_choice):
     X_train_quest, X_train_doc = embed_and_pad_sequences(train, word2index, embedding_model)
     X_val_quest, X_val_doc = embed_and_pad_sequences(eval, word2index, embedding_model)
 
+    # Convert all variables to numpy arrays
     y_train_start = train["start_position"].to_numpy()
     y_train_end = train["end_position"].to_numpy()
     y_val_start = eval["start_position"].to_numpy()
@@ -55,7 +58,7 @@ def train_glove(filepath, load_embedding, model_choice):
     y_val = [y_val_start, y_val_end]
 
     if model_choice == "3":
-        # Computes additional features (POS, Exact Lemma, Term Frequency)
+        # Computes additional features (Exact Lemma Match and Term Frequency)
         print("Building additional features (it may take a while...)")
         X_train_exact_lemma = build_exact_lemma_features(
             train, MAX_CONTEXT_LEN)
@@ -67,6 +70,7 @@ def train_glove(filepath, load_embedding, model_choice):
         X_val.extend([X_eval_exact_lemma, X_eval_tf])
 
     if model_choice == "4":
+        print("Preparing char embedding matrix and other char based variables")
         alphabet = list(ALPHABET)
         alphabet.extend([PAD_TOKEN, UNK_TOKEN])
         index2char = list_to_dict(alphabet)
@@ -99,7 +103,7 @@ def train_glove(filepath, load_embedding, model_choice):
         X_val = [X_val_quest, X_val_doc, X_val_quest_char, X_val_doc_char]
         y_val = [y_val_start, y_val_end]
 
-        print("Creating CNN model:\n")
+        print("Creating char CNN model and loading pretrained weights")
 
         doc_char_model = charCnnModel.buildCharCnnModel(input_shape=(MAX_CONTEXT_LEN, MAX_WORD_LEN),
                                                         embedding_size=EMBEDDING_DIMENSION,
@@ -139,20 +143,22 @@ def train_glove(filepath, load_embedding, model_choice):
         X_val, y_val, val_doc_tokens, val_answer_text)
     lrr = LearningRateReducer(0.8)
     es = EarlyStopping(monitor='val_loss', patience=3)
+    checkpoint = ModelCheckpoint("weights", monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=True)
 
     print("Creating model structure\n")
     if model_choice == "1":
         model = build_model(embedding_matrix, LEARNING_RATE)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "baseline")
+        weights_path = osp.join(weightsdir, "baseline")
     elif model_choice == "2":
         model = build_model(embedding_matrix, LEARNING_RATE, attention=True)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "attention")
+        weights_path = osp.join(weightsdir, "attention")
     elif model_choice == "3":
         model = build_model(embedding_matrix, LEARNING_RATE, features=True)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "features")
+        weights_path = osp.join(weightsdir, "features")
     elif model_choice == "4":
-        model = build_model(embedding_matrix, LEARNING_RATE, char_embedding=True, attention=True, doc_char_model=doc_char_model, quest_char_model=quest_char_model)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "char")
+        model = build_model(embedding_matrix, LEARNING_RATE, char_embedding=True, attention=True, 
+                            doc_char_model=doc_char_model, quest_char_model=quest_char_model)
+        weights_path = osp.join(weightsdir, "char")
     model.summary()
 
     print("\nTrain start:\n\n")
@@ -163,12 +169,9 @@ def train_glove(filepath, load_embedding, model_choice):
         validation_steps=VAL_LEN / BATCH_SIZE,
         epochs=EPOCHS,
         verbose=1,
-        callbacks=[exact_match_callback, es, lrr],
+        callbacks=[exact_match_callback, es, lrr, checkpoint],
         shuffle=True,
         workers=WORKERS)
-    print("### SAVING MODEL ###")
-    model.save_weights(os.path.join(weights_path, 'weights.h5'))
-    print("Weights saved to: " + weights_path +
-          "/weights.h5 inside the model directory")
+    print("Weights saved to: " + weights_path)
 
     return model

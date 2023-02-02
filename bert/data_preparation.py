@@ -33,132 +33,132 @@ def bert_tokenization(token_list, tokenizer):
     return [tokenizer.encode(token_list[i], add_special_tokens=False) for i in range(len(token_list))]
 
 def unpack_dataframe(df, with_features=True):
-  tot_input_ids = []
-  tot_token_type_ids = []
-  tot_attention_mask = []
-  if with_features:
-    tot_pos_tags = []
-    tot_exact_lemmas = []
-    tot_term_frequency = []
-
-  tot_bert_start = []
-  tot_bert_end = []
-
-  tot_doc_tokens =[]
-  tot_orig_answer_text = []
-  
-  for _, row in tqdm(df.iterrows(), total=len(df)):
-    input_ids = []
-    token_type_ids = []
-    attention_mask = []
+    tot_input_ids = []
+    tot_token_type_ids = []
+    tot_attention_mask = []
     if with_features:
-      pos_tags = []
-      exact_lemmas = []
-      term_frequency = []
-    orig_doc_tokens = row.doc_tokens
-    orig_answer_text = row.orig_answer_text
+        tot_pos_tags = []
+        tot_exact_lemmas = []
+        tot_term_frequency = []
 
-    bert_start = 0
-    bert_end = 0
-    bert_token_counter = 0
+    tot_bert_start = []
+    tot_bert_end = []
 
-    if with_features:
-      tokens = zip(row.bert_tokenized_doc_tokens, row.pos_tag, row.exact_lemma, row.tf)
-    else:
-      tokens = row.bert_tokenized_doc_tokens
+    tot_doc_tokens =[]
+    tot_orig_answer_text = []
+    
+    for _, row in tqdm(df.iterrows(), total=len(df)):
+      input_ids = []
+      token_type_ids = []
+      attention_mask = []
+      if with_features:
+        pos_tags = []
+        exact_lemmas = []
+        term_frequency = []
+      orig_doc_tokens = row.doc_tokens
+      orig_answer_text = row.orig_answer_text
 
-    for id, doc_tokens in enumerate(tokens):  
+      bert_start = 0
+      bert_end = 0
+      bert_token_counter = 0
 
       if with_features:
-        doc_tokens, pos, el, tf = doc_tokens
+        tokens = zip(row.bert_tokenized_doc_tokens, row.pos_tag, row.exact_lemma, row.tf)
+      else:
+        tokens = row.bert_tokenized_doc_tokens
 
-      if id == 0:
-        input_ids.append(101)
-        token_type_ids.append(0)
-        attention_mask.append(1)
+      for id, doc_tokens in enumerate(tokens):  
         if with_features:
-          pos_tags.append(PAD_POS)
-          exact_lemmas.append(np.array([0,0]))
-          term_frequency.append(np.array([0.0]))
-        bert_token_counter += 1
-
-      if id == row.start_position:
-        bert_start = bert_token_counter
-
-      for (int_id, tok) in zip(doc_tokens.ids, doc_tokens.tokens):
-        bert_token_counter += 1
-        input_ids.append(int_id)
-        token_type_ids.append(0)
-        attention_mask.append(1)
-
-        if with_features:
-          if tok in TRANSL_DICT.keys():
-            pos_tags.append(TRANSL_DICT[tok])
+          doc_tokens, pos, el, tf = doc_tokens
+        if id == 0:
+          input_ids.append(101)
+          token_type_ids.append(0)
+          attention_mask.append(1)
+          if with_features:
+            pos_tags.append(PAD_POS)
             exact_lemmas.append(np.array([0,0]))
             term_frequency.append(np.array([0.0]))
-          else:
-            pos_tags.append(pos[1])
-            exact_lemmas.append(el)
-            term_frequency.append(tf)
-      
-      if id == row.end_position:
-        bert_end = bert_token_counter-1
+          bert_token_counter += 1
 
-    for id, quest_tokens in enumerate(row.bert_tokenized_quest_tokens):
-      if id == 0:
-        input_ids.append(102)
-        token_type_ids.append(0)
-        attention_mask.append(1)
-        if with_features:
-          pos_tags.append(PAD_POS)
-          exact_lemmas.append(np.array([0,0]))
-          term_frequency.append(np.array([0.0]))
+        if id == row.start_position:
+          bert_start = bert_token_counter
 
-      for (int_id, tok) in zip(quest_tokens.ids, quest_tokens.tokens):
-        input_ids.append(int_id)
-        token_type_ids.append(1)
-        attention_mask.append(1)
-        if with_features:
-          pos_tags.append(PAD_POS)
-          exact_lemmas.append(np.array([0,0]))
-          term_frequency.append(np.array([0.0]))
-      
-    input_ids.append(102)
-    token_type_ids.append(1)
-    attention_mask.append(1)
+        for (int_id, tok) in zip(doc_tokens.ids, doc_tokens.tokens):
+          bert_token_counter += 1
+          input_ids.append(int_id)
+          token_type_ids.append(0)
+          attention_mask.append(1)
+
+          if with_features:
+            if tok in TRANSL_DICT.keys():
+              pos_tags.append(TRANSL_DICT[tok])
+              exact_lemmas.append(np.array([0,0]))
+              term_frequency.append(np.array([0.0]))
+            else:
+              pos_tags.append(pos[1])
+              exact_lemmas.append(el)
+              term_frequency.append(tf)
+        
+        if id == row.end_position:
+          bert_end = bert_token_counter-1
+
+      for id, quest_tokens in enumerate(row.bert_tokenized_quest_tokens):
+        if id == 0:
+          input_ids.append(102)
+          token_type_ids.append(0)
+          attention_mask.append(1)
+          if with_features:
+            pos_tags.append(PAD_POS)
+            exact_lemmas.append(np.array([0,0]))
+            term_frequency.append(np.array([0.0]))
+
+        for (int_id, tok) in zip(quest_tokens.ids, quest_tokens.tokens):
+          input_ids.append(int_id)
+          token_type_ids.append(1)
+          attention_mask.append(1)
+          if with_features:
+            pos_tags.append(PAD_POS)
+            exact_lemmas.append(np.array([0,0]))
+            term_frequency.append(np.array([0.0]))
+        
+      input_ids.append(102)
+      token_type_ids.append(1)
+      attention_mask.append(1)
+      if with_features:
+        pos_tags.append(PAD_POS)
+        exact_lemmas.append(np.array([0,0]))
+        term_frequency.append(np.array([0.0]))
+        
+      tot_doc_tokens.append(orig_doc_tokens)
+      tot_orig_answer_text.append(orig_answer_text)
+      tot_input_ids.append(input_ids)
+      tot_token_type_ids.append(token_type_ids)
+      tot_attention_mask.append(attention_mask)
+
+      if with_features:
+        tot_pos_tags.append(pos_tags)
+        tot_exact_lemmas.append(exact_lemmas)
+        tot_term_frequency.append(term_frequency)
+
+      tot_bert_start.append(bert_start)
+      tot_bert_end.append(bert_end)
+
+    tot_bert_start = np.array(tot_bert_start)
+    tot_bert_end = np.array(tot_bert_end)
     if with_features:
-      pos_tags.append(PAD_POS)
-      exact_lemmas.append(np.array([0,0]))
-      term_frequency.append(np.array([0.0]))
-      
-    tot_doc_tokens.append(orig_doc_tokens)
-    tot_orig_answer_text.append(orig_answer_text)
-    tot_input_ids.append(input_ids)
-    tot_token_type_ids.append(token_type_ids)
-    tot_attention_mask.append(attention_mask)
-
-    if with_features:
-      tot_pos_tags.append(pos_tags)
-      tot_exact_lemmas.append(exact_lemmas)
-      tot_term_frequency.append(term_frequency)
-
-    tot_bert_start.append(bert_start)
-    tot_bert_end.append(bert_end)
-
-  tot_bert_start = np.array(tot_bert_start)
-  tot_bert_end = np.array(tot_bert_end)
-  if with_features:
-    return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_pos_tags, tot_exact_lemmas, tot_term_frequency, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
-  else:
-    return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
+      return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_pos_tags, tot_exact_lemmas, tot_term_frequency, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
+    else:
+      return tot_input_ids, tot_token_type_ids, tot_attention_mask, tot_bert_start, tot_bert_end, tot_doc_tokens, tot_orig_answer_text
 
 def pad_inputs(input_ids, token_type_ids, attention_mask):
+    """ Pads inputs according to fixed maximum length """
     input_ids = pad_sequences(input_ids, padding="post", truncating="post", maxlen=BERT_MAX_LEN)
     token_type_ids = pad_sequences(token_type_ids, padding="post", truncating="post", maxlen=BERT_MAX_LEN)
     attention_mask = pad_sequences(attention_mask, padding="post", truncating="post", maxlen=BERT_MAX_LEN)
     return input_ids, token_type_ids, attention_mask
 
 def pad_additonal_features(pos_tags, exact_lemma, term_freq):
+    """ Pads additional features according to fixed maximum length """
     pos_to_idx, _ = build_pos_indices()
     pos_tags = [[pos_to_idx[el] for el in sequence] for sequence in pos_tags]
     pos_tags = pad_sequences(pos_tags, padding='post', truncating='post', maxlen=BERT_MAX_LEN, value = 0)

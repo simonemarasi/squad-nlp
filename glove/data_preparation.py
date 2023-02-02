@@ -22,7 +22,7 @@ def remove_outliers(df):
 
 def embed_and_pad_sequences(df, word2index, embedding_model):
     """
-    Converts tokens to GloVe sequences and pad them
+    Converts tokens to GloVe sequences and pads them
     """
     X_quest = [[word2index[UNK_TOKEN] if w not in embedding_model.vocab else word2index[w] for w in s] for s in df.proc_quest_tokens]
     X_doc = [[word2index[UNK_TOKEN] if w not in embedding_model.vocab else word2index[w] for w in s] for s in df.proc_doc_tokens]

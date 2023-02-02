@@ -8,8 +8,9 @@ from bert.models import *
 from bert.generators import *
 import os
 from sklearn.utils import shuffle
+from tensorflow.keras.callbacks import EarlyStopping
 
-def train_bert(filepath, model_choice, outputdir):
+def train_bert(filepath, model_choice, weightsdir):
     print("Loading Data")
     data = load_json_file(filepath)
 
@@ -34,7 +35,7 @@ def train_bert(filepath, model_choice, outputdir):
     eval = preprocess_split(eval)
 
     if (model_choice == "3"):
-        print("Preparing additional features")
+        print("Preparing additional features (it may take a while...)")
         X_train_input_ids, X_train_token_type_ids, X_train_attention_mask, X_train_pos_tags, X_train_exact_lemma, X_train_tf, y_train_start, y_train_end, _, _ = unpack_dataframe(train)
         X_eval_input_ids, X_eval_token_type_ids, X_eval_attention_mask, X_eval_pos_tags, X_eval_exact_lemma, X_eval_tf, y_eval_start, y_eval_end, eval_doc_tokens, eval_orig_answer_text = unpack_dataframe(eval)
     else:
@@ -80,7 +81,7 @@ def train_bert(filepath, model_choice, outputdir):
     model.summary()
 
     exact_match_callback = ExactMatch(X_val, y_val, eval_doc_tokens, X_eval_input_ids, eval_orig_answer_text, eval_lookup_list)
-    es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
+    es = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
 
     print("\nTrain start:\n\n")
     model.fit(
@@ -93,7 +94,7 @@ def train_bert(filepath, model_choice, outputdir):
         callbacks=[exact_match_callback, es],
         workers=WORKERS)
     print("### SAVING MODEL ###")
-    model.save_weights(os.path.join(outputdir, "weights.h5"))
+    model.save_weights(os.path.join(weightsdir, "weights.h5"))
     print("Weights saved to: weights.h5 inside the model directory")
 
     return model

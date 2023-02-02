@@ -38,7 +38,6 @@ def read_examples(data, is_training=True):
                     else:
                         doc_tokens[-1] += c
                     prev_is_whitespace = False
-                # char to word offset indica l'indice in cui una parole termina nel context
                 char_to_word_offset.append(len(doc_tokens) - 1)
 
             for qa in paragraph["qas"]:
@@ -69,8 +68,7 @@ def read_examples(data, is_training=True):
                               "start_position": start_position,
                               "end_position": end_position}
                     examples.append(example)
-                    if is_training:
-                        # break the for loop getting only the first answer
+                    if is_training: # break the for loop in order to get only the first answer (in case of multiple answers)
                         break                    
 
     return pd.DataFrame(examples)
@@ -90,7 +88,9 @@ def preprocess_tokens(token_list):
 
 
 def normalize_answer(s):
-    """Lower text and remove punctuation, articles and extra whitespace."""
+    """
+    Lower text and remove punctuation, articles and extra whitespace.
+    """
     def remove_articles(text):
         regex = re.compile(r'\b(a|an|the)\b', re.UNICODE)
         return re.sub(regex, ' ', text)

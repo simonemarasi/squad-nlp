@@ -3,7 +3,6 @@ import json
 import os.path as osp
 
 def compute_predictions(model, X, ids, tokens, outputdir):
-    print("\nCompute predictions and saving to file")
     out = model.predict(X)
     start_idx = np.argmax(out[0], axis=-1).tolist()
     end_idx = np.argmax(out[1], axis=-1).tolist()

@@ -9,7 +9,7 @@ from bert.generators import *
 from sklearn.utils import shuffle
 from compute_answers import compute_bert_predictions
 
-def test_bert(filepath, model_choice, outputdir):
+def test_bert(filepath, model_choice, outputdir, weightsdir):
     print("Loading Data")
     data = load_json_file(filepath)
 
@@ -28,11 +28,12 @@ def test_bert(filepath, model_choice, outputdir):
             print("Additional features computed successfully")
         return split
 
+    print("Loading BERT tokenizer")
     tokenizer = load_bert_tokenizer()
 
     test = preprocess_split(data)
+    print("Unpacking dataframe")
     if (model_choice == "3"):
-        print("Unpacking dataframe")
         X_test_input_ids, X_test_token_type_ids, X_test_attention_mask, X_test_pos_tags, X_test_exact_lemma, X_test_tf, _, _, test_doc_tokens, _ = unpack_dataframe(test)
     else:
         X_test_input_ids, X_test_token_type_ids, X_test_attention_mask, _, _, test_doc_tokens, _ = unpack_dataframe(test, with_features=False)
@@ -51,19 +52,21 @@ def test_bert(filepath, model_choice, outputdir):
     print("Creating model:\n")
     if model_choice == "1":
         model = baseline_model(LEARNING_RATE)
-        weights_path = osp.join(BERT_WEIGHTS_PATH, "baseline")
+        weights_path = osp.join(weightsdir, "baseline")
     elif model_choice == "2":
         model = baseline_with_rnn(LEARNING_RATE)
-        weights_path = osp.join(BERT_WEIGHTS_PATH, "rnn")
+        weights_path = osp.join(weightsdir, "rnn")
     elif model_choice == "3":
         model = features_with_rnn(LEARNING_RATE)
-        weights_path = osp.join(BERT_WEIGHTS_PATH, "rnn-features")
+        weights_path = osp.join(weightsdir, "rnn-features")
 
     model.summary()
 
     print("\nLoading model weights\n\n")
     MODEL_PATH = osp.join(weights_path, "weights.h5")
     model.load_weights(MODEL_PATH)
+    if outputdir is None:
+        outputdir = weights_path
     print("\nComputing predictions and save into a file\n\n")
     compute_bert_predictions(model, X_test, X_test_qas_id, test_doc_tokens, test_lookup_list, X_test_input_ids, tokenizer, outputdir)
 

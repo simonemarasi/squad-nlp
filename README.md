@@ -8,7 +8,7 @@ This repository contains the implementation of a form of extractive QA applied t
 - a high end reference model using BERT
 
 
-### Run script
+### Setup
 First of all, you have to clone the repository into your PC through the usual git command:
 
 `https://github.com/simonesimo97/squad-nlp.git`
@@ -55,15 +55,19 @@ glove
 └── ...
 </pre>
 
+All library requirements are reported in the `requirements.txt` file.
+
 Then from your terminal you can launch the `main.py` file and choose the model you want to run and its variant. You can also specify other parameters such as the mode in which run (train, test or evaluate), the custom weights directory where to pick weights file (if one), output directory for predictions (if test mode), if to use the pretrained GloVe embeddings or build it from scratch and so on. You can see all available options running the help command:
 
 `help command`
 
-After the execution of the script, if you have chosen the **train mode** then you have the just computed weight file in the output directory specified and you are now ready to test on different data file to see how it performs. 
+### Modalities
 
-If you have chosen instead the **test mode** on your dataset now you have a `prediction.txt` file with the results in the output directory specified. 
+* **Train:** After the execution of the script you will have the just computed weight file in the output directory specified and you are now ready to test on different data file to see how it performs.
+* **Test:** you will have a `prediction.txt` file with the results in the output directory specified. 
+* **Evaluate:** specifying the paths of the prediction file and of the target data file, you will get the metrics of that model. These metrics are computed using the SQuAD official evaluation script.
 
-You can relaunch the script in the **evaluate mode** specifying the paths of the prediction file and of the data file in order to get the metrics of that model. These metrics are computed using the SQuAD official evaluation script.
+You can relaunch the script in the **evaluate mode** 
 
 ### Results on official SQuAD test set
 

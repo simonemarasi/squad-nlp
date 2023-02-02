@@ -18,6 +18,9 @@ def prepare_embedding_model(df, load_embedding):
     return emb_model
 
 def build_char_embedding_matrix(embedding_model, index2char, char2index):
+    """
+    Builds a char embedding matrix assigning random values to OOV words and zero vector to PAD character
+    """
     char_embedding_matrix = np.zeros((len(index2char), EMBEDDING_DIMENSION))
     for index in index2char:
         if index == char2index[PAD_TOKEN]:

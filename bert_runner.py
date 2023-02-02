@@ -10,7 +10,7 @@ def get_model_input(prompt):
             break
     return value
 
-def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
+def bert_runner(filepath, outputdir=None, weightsdir=BERT_WEIGHTS_PATH, mode="test"):
 
     print("#####################")
     print("#### BERT RUNNER ####")
@@ -24,7 +24,9 @@ def bert_runner(filepath, outputdir=BERT_WEIGHTS_PATH, mode="test"):
 
     if mode == 'train':
         from bert.train import train_bert
-        train_bert(filepath, model_choice, outputdir)
+        print("\nRunning BERT model in train mode\n")
+        train_bert(filepath, model_choice, weightsdir)
     elif mode == 'test':
         from bert.test import test_bert
-        test_bert(filepath, model_choice, outputdir)
+        print("\nRunning BERT model in test mode\n")
+        test_bert(filepath, model_choice, outputdir, weightsdir)

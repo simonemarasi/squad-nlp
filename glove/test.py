@@ -10,7 +10,7 @@ from glove.generators import *
 from compute_answers import compute_predictions
 from glove.model import charCnnModel
 
-def test_glove(filepath, model_choice, outputdir):
+def test_glove(filepath, model_choice, outputdir, weightsdir=GLOVE_WEIGHTS_PATH):
 
     print("Loading Data")
     data = load_json_file(filepath)
@@ -45,6 +45,7 @@ def test_glove(filepath, model_choice, outputdir):
         X_test.extend([X_test_exact_lemma, X_test_tf])
 
     if model_choice == "4":
+        print("Preparing char embedding matrix and other char based variables")
         alphabet = list(ALPHABET)
         alphabet.extend([PAD_TOKEN, UNK_TOKEN])
         index2char = list_to_dict(alphabet)
@@ -63,7 +64,7 @@ def test_glove(filepath, model_choice, outputdir):
         X_test_doc_char = pad_sequences(maxlen=MAX_CONTEXT_LEN, sequences=X_test_doc_char, padding="post", truncating="post", value=CHARPAD)
         X_test = [X_test_quest, X_test_doc, X_test_quest_char, X_test_doc_char]
 
-        print("Creating model:\n")
+        print("Creating char CNN model and loading pretrained weights")
 
         doc_char_model = charCnnModel.buildCharCnnModel(input_shape=(MAX_CONTEXT_LEN, MAX_WORD_LEN),
                                                         embedding_size=EMBEDDING_DIMENSION,
@@ -86,23 +87,25 @@ def test_glove(filepath, model_choice, outputdir):
     print("Creating model structure\n")
     if model_choice == "1":
         model = build_model(embedding_matrix, LEARNING_RATE)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "baseline")
+        weights_path = osp.join(weightsdir, "baseline")
     elif model_choice == "2":
         model = build_model(embedding_matrix, LEARNING_RATE, attention=True)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "attention")
+        weights_path = osp.join(weightsdir, "attention")
     elif model_choice == "3":
         model = build_model(embedding_matrix, LEARNING_RATE, features=True)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "features")
+        weights_path = osp.join(weightsdir, "features")
     elif model_choice == "4":
         model = build_model(embedding_matrix, LEARNING_RATE, char_embedding=True, attention=True, doc_char_model=doc_char_model, quest_char_model=quest_char_model)
-        weights_path = osp.join(GLOVE_WEIGHTS_PATH, "char")
+        weights_path = osp.join(weightsdir, "char")
     model.summary()
 
-    
-
     print("\nLoading model weights:\n\n")
-    MODEL_PATH = osp.join(weights_path, "weights.h5")
+    MODEL_PATH = osp.join(weights_path, "weights")
     model.load_weights(MODEL_PATH)
+    print("\nCompute predictions and saving to file")
+    if outputdir is None:
+        outputdir = weights_path
     compute_predictions(model, X_test, X_test_ids, X_test_doc_tokens, outputdir)
+    print("\npredictions.txt file saved to: " + outputdir + "/predictions.txt")
     
     return model
