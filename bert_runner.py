@@ -10,7 +10,9 @@ def get_model_input(prompt):
             break
     return value
 
-def bert_runner(filepath, outputdir=None, weightsdir=BERT_WEIGHTS_PATH, mode="test"):
+def bert_runner(filepath, outputdir, weightsdir, mode):
+
+    weightsdir = BERT_WEIGHTS_PATH if weightsdir is None else weightsdir
 
     print("#####################")
     print("#### BERT RUNNER ####")
