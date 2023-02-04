@@ -93,7 +93,10 @@ def train_bert(filepath, model_choice, weightsdir):
         verbose=1,
         callbacks=[exact_match_callback, es],
         workers=WORKERS)
+
     print("### SAVING MODEL ###")
+    if not osp.exists(weightsdir):
+        os.makedirs(weightsdir)
     model.save_weights(os.path.join(weightsdir, "weights.h5"))
     print("Weights saved to: weights.h5 inside the model directory")
 

@@ -18,7 +18,7 @@ parser.add_argument("-df", "--data-file",
 
 parser.add_argument("-we", "--word-embeddings",
                     dest="embeddings",
-                    help="Don't use pre-generated embedding model and generate embedding matrix from scratch (only for GloVe models)",
+                    help="It will not use pre-generated embedding model and generate embedding matrix from scratch (only for train GloVe models)",
                     action='store_false')
 
 parser.add_argument("-wd", "--weights-directory", 

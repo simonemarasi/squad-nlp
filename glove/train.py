@@ -11,7 +11,7 @@ import os
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from glove.model import charCnnModel
 
-def train_glove(filepath, load_embedding, model_choice, weightsdir=GLOVE_WEIGHTS_PATH):
+def train_glove(filepath, load_embedding, model_choice, weightsdir):
     print("Loading Data")
     data = load_json_file(filepath)
     print("Preparing dataset")
@@ -143,8 +143,7 @@ def train_glove(filepath, load_embedding, model_choice, weightsdir=GLOVE_WEIGHTS
         X_val, y_val, val_doc_tokens, val_answer_text)
     lrr = LearningRateReducer(0.8)
     es = EarlyStopping(monitor='val_loss', patience=3)
-    checkpoint = ModelCheckpoint("weights", monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=True)
-
+    
     print("Creating model structure\n")
     if model_choice == "1":
         model = build_model(embedding_matrix, LEARNING_RATE)
@@ -160,6 +159,11 @@ def train_glove(filepath, load_embedding, model_choice, weightsdir=GLOVE_WEIGHTS
                             doc_char_model=doc_char_model, quest_char_model=quest_char_model)
         weights_path = osp.join(weightsdir, "char")
     model.summary()
+
+    if not osp.exists(weights_path):
+        os.makedirs(weights_path)
+    checkpoint = ModelCheckpoint(osp.join(weights_path, "weights"), monitor='val_loss', verbose=1, 
+                                 save_best_only=True, save_weights_only=True)
 
     print("\nTrain start:\n\n")
     model.fit(
