@@ -53,13 +53,8 @@ data
                 └── CNN_100_FineTunedEmbedding.index</b>
 glove
 └── ...
+...
 </pre>
-
-All library requirements are reported in the `requirements.txt` file.
-
-Then from your terminal you can launch the `main.py` file and choose the model you want to run and its variant. You can also specify other parameters such as the mode in which run (train, test or evaluate), the custom weights directory where to pick weights file (if one), output directory for predictions (if test mode), if to use the pretrained GloVe embeddings or build it from scratch and so on. You can see all available options running the help command:
-
-`help command`
 
 ### Modalities
 
@@ -67,7 +62,19 @@ Then from your terminal you can launch the `main.py` file and choose the model y
 * **Test:** you will have a `prediction.txt` file with the results in the output directory specified. 
 * **Evaluate:** specifying the paths of the prediction file and of the target data file, you will get the metrics of that model. These metrics are computed using the SQuAD official evaluation script.
 
-You can relaunch the script in the **evaluate mode** 
+### Run
+
+All library requirements are reported in the `requirements.txt` file. You can install running the command `pip install -r requirements.txt`.
+
+Then from your terminal you can launch the `main.py` file and choose the model you want to run and its variant. You can also specify other parameters such as the mode in which run (train, test or evaluate), the custom weights directory where to pick weights file (if one), output directory for predictions (if test mode), if to use the pretrained GloVe embeddings or build it from scratch and so on. Here some examples:
+
+`py main.py -mode=train [-we] [-wd=/path/where/saving/weights]`
+
+`py main.py -mode=test -df=/path/of/test/set [-we] [-wd=/path/where/saving/weights] [-od="/path/where/saving/predictions]"`
+
+`py main.py -mode=evaluate -df=/path/of/test/set -pred="/path/of/predictions/file"`
+
+The variables written above inside the square brackets have a default value you can check in the config file.
 
 ### Results on official SQuAD test set
 
