@@ -12,10 +12,10 @@ def get_model_input(prompt):
             break
     return value
 
-def glove_runner(filepath, outputdir, weightsdir, mode, load_embeddings):
+def glove_runner(filepath, outputdir, weightsdir, mode, generate_embeddings):
 
     weightsdir = GLOVE_WEIGHTS_PATH if weightsdir is None else weightsdir
-    load_embeddings = True if load_embeddings is None else False
+    load_embeddings = generate_embeddings if generate_embeddings is False else True
 
     print("######################")
     print("#### GLOVE RUNNER ####")
