@@ -8,6 +8,7 @@ from glove.glove_embedding import *
 from glove.model.models import *
 from glove.generators import *
 from compute_answers import compute_predictions
+import os
 from glove.model import charCnnModel
 
 def test_glove(filepath, model_choice, outputdir, weightsdir=GLOVE_WEIGHTS_PATH):
@@ -105,6 +106,9 @@ def test_glove(filepath, model_choice, outputdir, weightsdir=GLOVE_WEIGHTS_PATH)
     print("\nCompute predictions and saving to file")
     if outputdir is None:
         outputdir = weights_path
+    elif not osp.exists(outputdir):
+        os.makedirs(outputdir)
+
     compute_predictions(model, X_test, X_test_ids, X_test_doc_tokens, outputdir)
     print("\npredictions.txt file saved to: " + outputdir + "/predictions.txt")
     

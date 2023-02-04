@@ -12,10 +12,10 @@ def get_model_input(prompt):
             break
     return value
 
-def glove_runner(filepath, outputdir, weightsdir, mode, load_embedding):
+def glove_runner(filepath, outputdir, weightsdir, mode, load_embeddings):
 
     weightsdir = GLOVE_WEIGHTS_PATH if weightsdir is None else weightsdir
-    load_embedding = True if load_embedding is None else load_embedding
+    load_embeddings = True if load_embeddings is None else False
 
     print("######################")
     print("#### GLOVE RUNNER ####")
@@ -29,7 +29,7 @@ def glove_runner(filepath, outputdir, weightsdir, mode, load_embedding):
 
     if mode == 'train':
         print("\nRunning GloVe model in train mode\n")
-        train_glove(filepath, load_embedding, model_choice, weightsdir)
+        train_glove(filepath, load_embeddings, model_choice, weightsdir)
     elif mode == 'test':
         print("\nRunning GloVe model in test mode\n")
         test_glove(filepath, model_choice, outputdir, weightsdir)

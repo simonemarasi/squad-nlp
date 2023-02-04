@@ -8,6 +8,7 @@ from bert.models import *
 from bert.generators import *
 from sklearn.utils import shuffle
 from compute_answers import compute_bert_predictions
+import os
 
 def test_bert(filepath, model_choice, outputdir, weightsdir):
     print("Loading Data")
@@ -65,8 +66,12 @@ def test_bert(filepath, model_choice, outputdir, weightsdir):
     print("\nLoading model weights\n\n")
     MODEL_PATH = osp.join(weights_path, "weights.h5")
     model.load_weights(MODEL_PATH)
+
     if outputdir is None:
         outputdir = weights_path
+    elif not osp.exists(outputdir):
+        os.makedirs(outputdir)
+
     print("\nComputing predictions and save into a file\n\n")
     compute_bert_predictions(model, X_test, X_test_qas_id, test_doc_tokens, test_lookup_list, X_test_input_ids, tokenizer, outputdir)
 
