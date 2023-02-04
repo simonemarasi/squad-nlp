@@ -24,7 +24,7 @@ def glove_runner(filepath, outputdir, weightsdir, mode, load_embedding):
     print("1) Baseline")
     print("2) Baseline with attention")
     print("3) Baseline with features")
-    print("4) Baseline with attention and features")
+    print("4) Baseline with char embeddings and attention")
     model_choice = get_model_input("\nPlease type the model number to run with the current configuration: ")
 
     if mode == 'train':
