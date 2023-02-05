@@ -1,5 +1,6 @@
 from tensorflow.keras.callbacks import Callback
 from common.functions import compute_f1, normalize_answer
+from config import BATCH_SIZE
 import gc
 import numpy as np
 
@@ -12,7 +13,7 @@ class ExactMatch(Callback):
         self.y_text = y_text
 
     def on_epoch_end(self, epoch, logs):
-        pred_start, pred_end = self.model.predict(self.x_eval)
+        pred_start, pred_end = self.model.predict(self.x_eval, batch_size=BATCH_SIZE)
         count = 0
         f1_scores = []
         pred_start = np.argmax(pred_start, axis = -1)
