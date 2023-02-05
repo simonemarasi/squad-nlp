@@ -39,7 +39,7 @@ def test_glove(filepath, model_choice, outputdir, weightsdir=GLOVE_WEIGHTS_PATH)
     X_test = [X_test_quest, X_test_doc]
 
     if model_choice == "3":
-        # Computes additional features (POS, Exact Lemma, Term Frequency)
+        # Computes additional features (Exact Lemmas, Term Frequency)
         print("Building additional features (it may take a while...)")
         X_test_exact_lemma = build_exact_lemma_features(test, MAX_CONTEXT_LEN)
         X_test_tf = build_term_frequency_features(test, MAX_CONTEXT_LEN)
