@@ -37,7 +37,7 @@ TRANSL_DICT = {"'": "''", "-": '--', ':': ':', '(': '(', ')': ')', '.': '.', ','
 # ###################
 # MODEL CONFIGURATION
 # ###################
-WORKERS = 4
+WORKERS = 1
 LEARNING_RATE = 5e-5
 EPOCHS = 25
 BATCH_SIZE = 64
