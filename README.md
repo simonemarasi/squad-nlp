@@ -2,16 +2,16 @@
 ## UniBo - NLP Exam - Artificial Intelligence
 
 ### Introduction
-This repository contains the implementation of a form of extractive QA applied to the Stanford Question Answering Dataset (SQuAD). Given a question and a passage containing the answer, the task is to predict the answer text span in the passage. In particular it has been tried several models
+This repository contains the implementation of a form of extractive QA applied to the Stanford Question Answering Dataset (SQuAD). Given a question and a passage containing the answer, the task is to predict the answer text span in the passage. In particular we have tried several models
 - a very simple Recurrent Neural Network (RNN) using the GloVe embedding;
 - an attention based model using both GloVe and a pretrained Character Level embedding, 
 - a high end reference model using BERT
 
 
 ### Setup
-First of all, you have to clone the repository into your PC through the usual git command:
+First of all, you need to clone the repository into your PC through the usual git command:
 
-`https://github.com/simonesimo97/squad-nlp.git`
+`git clone https://github.com/simonesimo97/squad-nlp.git`
 
 To execute the script in a test fashion with pretrained word embeddings and model weights [download the .zip file](https://www.4sync.com/web/directDownload/vq1HmCVf/GELocHMl.3efe1a6ed6f7215faddb42bf203a0904) and extract it into the `data/models` folder. After doing that your root folder structure should be like the following:
 
@@ -56,17 +56,17 @@ glove
 ...
 </pre>
 
-### Modalities
+### Script Execution Modes
 
-* **Train:** After the execution of the script you will have the just computed weight file in the output directory specified and you are now ready to test on different data file to see how it performs.
-* **Test:** you will have a `prediction.txt` file with the results in the output directory specified. 
-* **Evaluate:** specifying the paths of the prediction file and of the target data file, you will get the metrics of that model. These metrics are computed using the SQuAD official evaluation script.
+* **Train:** After the execution of the script you will find the just trained weight file in the output directory specified and you are now ready to test the model on a different data file to see how it performs.
+* **Test:** After execution you will find a `prediction.txt` file with the results in the output directory specified. 
+* **Evaluate:** After execution, specifying the paths of the prediction file and of the target data file, the script will print to console the metrics of that model. These metrics are computed using the SQuAD official evaluation script.
 
 ### Run
 
-All library requirements are reported in the `requirements.txt` file. You can install running the command `pip install -r requirements.txt`.
+All library requirements are reported in the `requirements.txt` file. You can install running the command `pip install -r requirements.txt`. We strongly suggest to install the required packages in a separate virtual environment.
 
-Then from your terminal you can launch the `main.py` file and choose the model you want to run and its variant. You can also specify other parameters such as the mode in which run (train, test or evaluate), the custom weights directory where to pick weights file (if one), output directory for predictions (if test mode), if to use the pretrained GloVe embeddings or build it from scratch and so on. Here some examples:
+Then from your terminal you can launch the `main.py` file and choose the model you want to run and its variant. You can also specify other parameters such as the mode in which to run (train, test or evaluate), a custom weights directory from where to pull the model weights, output directory for predictions (if in test mode), if to use the pretrained GloVe embeddings or build them from scratch and so on. Here are some examples:
 
 `py main.py -mode=train [-we] [-wd=/path/where/saving/weights]`
 
@@ -74,9 +74,9 @@ Then from your terminal you can launch the `main.py` file and choose the model y
 
 `py main.py -mode=evaluate -df=/path/of/test/set -pred="/path/of/predictions/file"`
 
-The variables written above inside the square brackets have a default value you can check in the config file.
+The variables written above inside the square brackets have a default value you can check in the `config.py` file that you can find in the root folder of the repository.
 
-### Results on official SQuAD test set
+### Results on official SQuAD Test Set
 
 | Model                          	| Exact Match (%) 	| F1 score (%) 	|
 |--------------------------------	|-----------------	|--------------	|
