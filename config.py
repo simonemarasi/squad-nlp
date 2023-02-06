@@ -45,7 +45,7 @@ LSTM_UNITS = 250
 GLOVE_LSTM_UNITS = 300
 
 # ###################
-# BIDAF CONFIGURATION
+# CHAR CNN CONFIGURATION
 # ###################
 
 CONV_LAYERS = [[100, 10],

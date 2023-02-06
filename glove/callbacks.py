@@ -12,7 +12,7 @@ class ExactMatch(Callback):
         self.doc_tokens_eval = doc_tokens_eval
         self.y_text = y_text
 
-    def on_epoch_end(self, epoch, logs):
+    def on_epoch_end(self, epoch, logs=None):
         pred_start, pred_end = self.model.predict(self.x_eval, batch_size=BATCH_SIZE)
         count = 0
         f1_scores = []
@@ -37,8 +37,9 @@ class LearningRateReducer(Callback):
   def __init__(self, downscale_factor):
     self.downscale_factor = downscale_factor
 
-  def on_epoch_end(self, epoch):
+  def on_epoch_end(self, epoch, logs=None):
     old_lr = self.model.optimizer.lr.read_value()
     new_lr = old_lr * self.downscale_factor
     print("\nEpoch: {}. Reducing Learning Rate from {} to {}\n".format(epoch, old_lr, new_lr))
     self.model.optimizer.lr.assign(new_lr)
+    
