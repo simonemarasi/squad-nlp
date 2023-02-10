@@ -60,8 +60,7 @@ def train_glove(filepath, load_embedding, model_choice, weightsdir):
     if model_choice == "3":
         # Computes additional features (Exact Lemma Match and Term Frequency)
         print("Building additional features (it may take a while...)")
-        X_train_exact_lemma = build_exact_lemma_features(
-            train, MAX_CONTEXT_LEN)
+        X_train_exact_lemma = build_exact_lemma_features(train, MAX_CONTEXT_LEN)
         X_train_tf = build_term_frequency_features(train, MAX_CONTEXT_LEN)
         X_train.extend([X_train_exact_lemma, X_train_tf])
 

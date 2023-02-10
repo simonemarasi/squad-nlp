@@ -73,10 +73,13 @@ def train_bert(filepath, model_choice, weightsdir):
     print("Creating model:\n")
     if model_choice == "1":
         model = baseline_model(LEARNING_RATE)
+        weightsdir = osp.join(weightsdir, "baseline")
     elif model_choice == "2":
         model = baseline_with_rnn(LEARNING_RATE)
+        weightsdir = osp.join(weightsdir, "rnn")
     elif model_choice == "3":
         model = features_with_rnn(LEARNING_RATE)
+        weightsdir = osp.join(weightsdir, "rnn-features")
 
     model.summary()
 

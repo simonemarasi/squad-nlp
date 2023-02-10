@@ -61,6 +61,7 @@ def build_term_frequency_features(df, maxlen):
     return pad_sequences(tf, maxlen = maxlen, padding='post', dtype='float64', truncating='post', value=0.0)
 
 def get_additional_features(df, maxlen):
+    """ Compute additional features (POS, Term frequency and Exact and Lemma match """
     doc_tags = build_pos_features(df)
     exact_lemmas = build_exact_lemma_features(df, maxlen)
     tf = build_term_frequency_features(df, maxlen)

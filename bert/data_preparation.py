@@ -33,6 +33,9 @@ def bert_tokenization(token_list, tokenizer):
     return [tokenizer.encode(token_list[i], add_special_tokens=False) for i in range(len(token_list))]
 
 def unpack_dataframe(df, with_features=True):
+    """
+    Unpack dataframe and transform columns it into lists
+    """
     tot_input_ids = []
     tot_token_type_ids = []
     tot_attention_mask = []

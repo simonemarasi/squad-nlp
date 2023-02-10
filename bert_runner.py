@@ -22,7 +22,13 @@ def bert_runner(filepath, outputdir, weightsdir, mode):
     print("2) Baseline with RNN")
     print("3) Baseline with RNN and features")
 
-    model_choice = get_model_input("\nPlease type the model number to run with the current configuration: ")
+    while True:
+        model_choice = get_model_input("\nPlease type the number of the variant of the BERT model you want to run: ")
+        if model_choice not in ["1", "2", "3"]:
+            print("Error, please make your choice between the ones allowed")
+            continue
+        else:
+            break
 
     if mode == 'train':
         from bert.train import train_bert

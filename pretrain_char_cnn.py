@@ -10,6 +10,7 @@ from keras import backend as K
 from tensorflow.keras.callbacks import EarlyStopping
 from glove.callbacks import LearningRateReducer
 
+print("Loading AG News dataset")
 train = pd.read_csv(osp.join(CHAR_PRETRAIN_PATH, "train.csv"), header=None, names=["Label", "Title", "Content"])
 test = pd.read_csv(osp.join(CHAR_PRETRAIN_PATH, "test.csv"), header=None, names=["Label", "Title", "Content"])
 classes = ["World", "Sports", "Business", "Sci/Tech"]
@@ -34,6 +35,7 @@ test[["Title", "Content"]] = test[["Title", "Content"]].apply(whitespace_tokeniz
 train["Label"] = train["Label"].apply(lambda x: x-1)
 test["Label"] = test["Label"].apply(lambda x: x-1)
 
+print("Loading pre-trained GloVe embedding model")
 embedding_model = prepare_embedding_model(train, True)
 
 alphabet = list(ALPHABET)
@@ -41,6 +43,7 @@ alphabet.extend([PAD_TOKEN, UNK_TOKEN])
 index2char = list_to_dict(alphabet)
 char2index = {value: key for (key, value) in index2char.items()}
 
+print("Building character embedding matrix")
 char_embedding_matrix = np.zeros((len(index2char), EMBEDDING_DIMENSION))
 for index in index2char:
   if index == char2index[PAD_TOKEN]:
@@ -53,6 +56,7 @@ for index in index2char:
 trainlist = [row["Title"] + row["Content"] for _, row in train.iterrows()]
 testlist = [row["Title"] + row["Content"] for _, row in test.iterrows()]
 
+print("Transform dataset in character embedding lists")
 X_train_char = [[[char2index[UNK_TOKEN] if c not in char2index else char2index[c] for c in w] for w in s] for s in trainlist]
 X_test_char = [[[char2index[UNK_TOKEN] if c not in char2index else char2index[c] for c in w] for w in s] for s in testlist]
 
@@ -73,6 +77,7 @@ y_test = to_categorical(test["Label"], num_classes=len(classes))
 lrr = LearningRateReducer(0.7)
 es = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
+print("Build model and start training")
 model = buildCharCnnModel(input_shape=(MAX_CONTEXT_LEN, MAX_WORD_LEN),
                     embedding_size=300,
                     char_embedding_matrix=char_embedding_matrix,
@@ -83,6 +88,8 @@ model = buildCharCnnModel(input_shape=(MAX_CONTEXT_LEN, MAX_WORD_LEN),
 K.set_value(model.optimizer.learning_rate, 5e-5)
 model.fit(X_train_char, y_train, batch_size=32, validation_split=0.2, shuffle=True, epochs=20, workers=WORKERS, callbacks=[es, lrr])
 
+# After fitting we make the embeddings trainable to fine tune the model and we reduce the learning rate by a factor of 10
+print("Fine tuning the model just trained")
 fineTunedModel = buildCharCnnModel(input_shape=(MAX_CONTEXT_LEN, MAX_WORD_LEN),
                     embedding_size=300,
                     char_embedding_matrix=char_embedding_matrix,

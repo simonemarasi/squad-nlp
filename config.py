@@ -44,9 +44,9 @@ BATCH_SIZE = 64
 LSTM_UNITS = 250
 GLOVE_LSTM_UNITS = 300
 
-# ###################
+# ######################
 # CHAR CNN CONFIGURATION
-# ###################
+# ######################
 
 CONV_LAYERS = [[100, 10],
                [100, 7],

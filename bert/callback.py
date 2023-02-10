@@ -5,7 +5,7 @@ import gc
 import numpy as np
 
 class ExactMatch(Callback):
-
+    """ Callback used during training to compute and monitor the metrics each epoch"""
     def __init__(self, x_eval, y_eval, doc_tokens_eval, bert_tokens_eval, y_text, eval_dict_map):
         self.x_eval = x_eval
         self.y_eval = y_eval

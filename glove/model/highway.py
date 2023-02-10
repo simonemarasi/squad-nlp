@@ -3,7 +3,7 @@ from keras.layers import Dense, Activation, Multiply, Add, Lambda, Layer
 from keras.initializers import Constant
 
 class Highway(Layer):
-
+    """ Code taken by https://github.com/ParikhKadam/bidaf-keras/blob/master/bidaf/layers/highway_layer.py"""
     activation = None
     transform_gate_bias = None
 

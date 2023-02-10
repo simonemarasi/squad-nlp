@@ -56,7 +56,7 @@ if __name__ == '__main__':
     print("2) BERT")
 
     while True:
-        model_to_run = input("\nChoose the model you want to run: ")
+        model_to_run = input("\nChoose the number of the model you want to run: ")
         if model_to_run not in ["1", "2"]:
             print("Error, please make your choice between the ones allowed")
             continue

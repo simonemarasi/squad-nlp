@@ -5,7 +5,7 @@ import gc
 import numpy as np
 
 class ExactMatch(Callback):
-
+    """ Callback used during training to compute and monitor the metrics each epoch"""
     def __init__(self, x_eval, y_eval, doc_tokens_eval, y_text):
         self.x_eval = x_eval
         self.y_eval = y_eval
@@ -33,7 +33,7 @@ class ExactMatch(Callback):
         gc.collect()
 
 class LearningRateReducer(Callback):
-
+  """ Callback used during training to reduce the learning rate by a fixed factor"""
   def __init__(self, downscale_factor):
     self.downscale_factor = downscale_factor
 

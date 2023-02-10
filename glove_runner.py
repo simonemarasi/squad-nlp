@@ -25,7 +25,14 @@ def glove_runner(filepath, outputdir, weightsdir, mode, generate_embeddings):
     print("2) Baseline with attention")
     print("3) Baseline with features")
     print("4) Baseline with char embeddings and attention")
-    model_choice = get_model_input("\nPlease type the model number to run with the current configuration: ")
+    
+    while True:
+        model_choice = get_model_input("\nPlease type the number of the variant of the GloVe model you want to run:")
+        if model_choice not in ["1", "2", "3", "4"]:
+            print("Error, please make your choice between the ones allowed")
+            continue
+        else:
+            break
 
     if mode == 'train':
         print("\nRunning GloVe model in train mode\n")

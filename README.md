@@ -13,7 +13,7 @@ First of all, you need to clone the repository into your PC through the usual gi
 
 `git clone https://github.com/simonesimo97/squad-nlp.git`
 
-To execute the script in a test fashion with pretrained word embeddings and model weights [download the .zip file](https://www.4sync.com/web/directDownload/vq1HmCVf/GELocHMl.3efe1a6ed6f7215faddb42bf203a0904) and extract it into the `data/models` folder. After doing that your root folder structure should be like the following:
+To execute the script in a test fashion with pretrained GloVe word embeddings and model weights [download the .zip file](https://www.4sync.com/web/directDownload/vq1HmCVf/GELocHMl.3efe1a6ed6f7215faddb42bf203a0904) (~4 GB) and extract it into the `data/models` folder. After doing that your root folder structure should be like the following:
 
 <pre>
 bert
